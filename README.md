@@ -190,7 +190,7 @@ I built and tested this only on what I use every day: **Windows 11, Claude Code 
 direct experience with other systems or tools, so I can't make it work there myself.
 
 If you want it on macOS or Linux, or with another AI (Codex, Gemini CLI, Cursor, a local model...), **you are free
-to download the code, change it and share your version** (MIT licence). The pieces to adapt are small: the hook
+to download the code, change it and share your version** (for noncommercial use, see Licence). The pieces to adapt are small: the hook
 that reads your messages, the command that runs the morning job, and the scheduler. The map itself is a single
 HTML file that works in any browser.
 
@@ -218,4 +218,6 @@ HTML file that works in any browser.
 
 ## Licence
 
-MIT: see [LICENSE](LICENSE).
+PolyForm Noncommercial 1.0.0: see [LICENSE](LICENSE). You can use, change and share it for free for any
+noncommercial purpose (personal use, study, research, hobby, charities, schools). Any commercial use needs my
+permission: ask me on GitHub. Versions published earlier under the MIT licence keep it.

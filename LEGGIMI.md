@@ -190,7 +190,7 @@ L'ho costruita e provata solo su quello che uso tutti i giorni: **Windows 11, Cl
 esperienza diretta con altri sistemi o strumenti, quindi non posso farla funzionare lì da solo.
 
 Se la vuoi su macOS o Linux, o con un'altra IA (Codex, Gemini CLI, Cursor, un modello locale...), **sei libero di
-scaricare il codice, modificarlo e condividere la tua versione** (licenza MIT). Le parti da adattare sono piccole:
+scaricare il codice, modificarlo e condividere la tua versione** (per usi non commerciali, vedi Licenza). Le parti da adattare sono piccole:
 l'hook che legge i tuoi messaggi, il comando che fa il lavoro del mattino e l'avvio automatico. La mappa è un solo
 file HTML che funziona in qualsiasi browser.
 
@@ -218,4 +218,6 @@ file HTML che funziona in qualsiasi browser.
 
 ## Licenza
 
-MIT: vedi [LICENSE](LICENSE).
+PolyForm Noncommercial 1.0.0: vedi [LICENSE](LICENSE). Puoi usarla, modificarla e condividerla gratis per
+qualsiasi scopo non commerciale (uso personale, studio, ricerca, hobby, associazioni, scuole). Per qualsiasi uso
+commerciale serve il mio permesso: chiedimelo su GitHub. Le versioni pubblicate prima con la licenza MIT restano MIT.

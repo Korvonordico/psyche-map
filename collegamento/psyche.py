@@ -3,7 +3,7 @@
 """Psyche Map - connector between the map and your AI (Claude Code; Hermes Agent optional).
 
 Collegamento tra la mappa e la tua IA: basta Claude Code; Hermes Agent e' facoltativo (aggiunge Telegram e voce).
-Tested only on Windows 11. Other systems and other AIs: you are free to adapt the code (MIT licence).
+Tested only on Windows 11. Other systems and other AIs: you are free to adapt the code for noncommercial use (PolyForm Noncommercial 1.0.0, see LICENSE).
 
   python psyche.py installa  [--lingua it|en] [--cartella DIR] [--ora 06:30] [--modello sonnet] [--hermes]
   python psyche.py disinstalla              removes hooks and the morning task (your data stays)
