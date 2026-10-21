@@ -111,6 +111,14 @@ To update: `git pull`, then run the install command again. Your map and your dia
   click it to open it. Esc closes.
 - The search box finds a word in planets and moons.
 - Customize (G key): colours, glow and speed. Your changes stay in this browser.
+- Music and the background rumble start on: the two buttons at the top right, next to Customize, turn them off and
+  on again. The browser starts sound only after your first click on the page.
+- When new memories or moons arrive, the “Update” button (the circular arrow at the top right) turns red with a soft
+  pulse. Until you press it the news stays hidden, in the counter too, even if you reload the page. Press it to watch
+  them being born: a blast lights a new star, a planet is captured with an impact, new moons form from a ring of
+  debris. The view follows the births until you touch the map; the rumble button turns their sounds off too. If you
+  open the page for the first time with more than six memories already in it, or your system asks for less motion,
+  everything appears at once.
 - It needs internet: the 3D library comes from cdn.jsdelivr.net.
 
 ## Commands

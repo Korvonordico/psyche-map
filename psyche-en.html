@@ -79,6 +79,15 @@
   .views button{background:none;border:0;padding:8px 11px;border-radius:2px;font:500 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);cursor:pointer;white-space:nowrap}
   .views button:hover{color:var(--ink);background:rgba(255,255,255,.06)}
   .views button[aria-pressed="true"]{color:var(--void);background:var(--star)}
+  .views button.snd{padding:6px 8px;display:flex;align-items:center;justify-content:center;position:relative}
+  .views button.snd svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .views button.snd.off{color:var(--ink-3, rgba(255,255,255,.35))}
+  .views button.snd.off::after{content:"";position:absolute;left:50%;top:50%;width:19px;height:1.6px;background:currentColor;transform:translate(-50%,-50%) rotate(-45deg);border-radius:1px}
+  @media (max-width:720px){ .views button.snd{flex:0 0 auto} }
+  .views button.snd:disabled{opacity:.35;cursor:default}
+  .views button.snd.nuovo{color:#ff6b6b;animation:nasPulse 2.6s ease-in-out infinite}
+  @keyframes nasPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,90,90,0)}50%{box-shadow:0 0 9px 1px rgba(255,90,90,.5)}}
+  @media (prefers-reduced-motion:reduce){ .views button.snd.nuovo{animation:none} }
 
   /* ---------- atlas (legend) ---------- */
   .atlas{position:fixed;z-index:3;left:16px;bottom:calc(var(--sb) + 16px);width:272px;max-height:min(62vh,580px);display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:4px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);overflow:hidden}
@@ -129,6 +138,9 @@
   .empty.gone{opacity:0;visibility:hidden;transition:opacity .9s,visibility 0s linear .9s}
   .empty-title{font:italic 500 30px/1.2 var(--disp);color:var(--ink);text-wrap:balance}
   .empty-sub{max-width:40ch;font:300 14.5px/1.6 var(--body);color:var(--ink-2)}
+  /* a dark halo, and a soft dark patch under it, so the centre text reads over the bright galaxy */
+  .empty-title,.empty-sub{text-shadow:0 0 2px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.85),0 0 18px rgba(0,0,0,.75),0 0 34px rgba(0,0,0,.6)}
+  .empty::before{content:'';position:absolute;left:50%;top:50%;width:min(640px,96vw);height:280px;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(4,4,12,.8),rgba(4,4,12,.6) 50%,rgba(4,4,12,0));z-index:-1;pointer-events:none}
 
   /* ---------- drawer ---------- */
   #drawer{position:fixed;z-index:5;top:0;right:0;bottom:0;width:min(410px,100%);padding:calc(var(--st) + 26px) 26px calc(var(--sb) + 34px);background:rgba(7,8,17,.9);border-left:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow-y:auto;overscroll-behavior:contain;transform:translateX(102%);visibility:hidden;transition:transform .42s cubic-bezier(.2,.8,.2,1),visibility 0s linear .42s;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
@@ -244,6 +256,9 @@
 </header>
 
 <nav class="views" aria-label="View">
+  <button type="button" class="snd" id="btnNuovi" disabled aria-label="Update: nothing new" title="Update: nothing new" data-no="Update: nothing new" data-si="Update: %n new things waiting, click to watch them being born"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
+  <button type="button" class="snd" id="btnMusica" aria-pressed="true" aria-label="Music" title="Music on: click to turn it off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></button>
+  <button type="button" class="snd" id="btnRombo" aria-pressed="true" aria-label="Background rumble" title="Background rumble on: click to turn it off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h3l2-5 3 10 3-14 3 16 2-7h4"/></svg></button>
   <button type="button" id="btnTune" aria-pressed="false" title="Customize colours and glow (G key)" hidden>Customize</button>
 </nav>
 
@@ -2109,7 +2124,8 @@
         var m = moonList[i]; pl = m.node.pl;
         var sz = pl.size || pl.pr, a = m.phase + m.omega*simTime, ca = Math.cos(a)*m.k*sz, sa = Math.sin(a)*m.k*sz;
         mzP.set(pl.world.x + m.u.x*ca + m.v.x*sa, pl.world.y + m.u.y*ca + m.v.y*sa, pl.world.z + m.u.z*ca + m.v.z*sa);
-        var ms = sz*m.size; mzS.set(ms, ms, ms);
+        var ms = sz*m.size; if (pl.luneNasc) ms *= fattoreLuna(pl, m.idx);
+        mzS.set(ms, ms, ms);
         tmpM.compose(mzP, IDQ, mzS); moonMesh.setMatrixAt(i, tmpM);
         m.world.copy(mzP); m.r = ms;
         ga.aStar.setXYZ(i, pl.sys.pos.x, pl.sys.pos.y, pl.sys.pos.z);
@@ -2198,13 +2214,15 @@
           size *= 1 + (1 - e)*1.4;
         }
       }
+      if (pl.nasce || pl.urto){ nascitaPianeta(n, pl, s, x, y, z, size); x = NASP.x; y = NASP.y; z = NASP.z; size = NASP.s; }
       pl.world.set(x, y, z);
       if (fnode === n) size *= 1.7; else if (nb && nb.has(n.id)) size *= 1.3;
       if (selNode === n && fnode !== n) size *= 1.3;
       pl.size = size; mzP.set(x, y, z); mzS.set(size, size, size); tmpM.compose(mzP, pl.q || IDQ, mzS);
       planetMesh.setMatrixAt(i, tmpM);
       aStar.setXYZ(i, s.pos.x, s.pos.y, s.pos.z);
-      gp.setXYZ(i, x, y, z); gs.setX(i, size*2.4);
+      if (pl.nascosto) gp.setXYZ(i, 0, -1e6, 0); else gp.setXYZ(i, x, y, z);
+      gs.setX(i, size*2.4);
     }
     planetMesh.instanceMatrix.needsUpdate = true; aStar.needsUpdate = true; gp.needsUpdate = true; gs.needsUpdate = true;
     planetMat.uniforms.uTime.value = simTime; updateMoons();
@@ -2274,12 +2292,12 @@
       var a = f.node;
       focusCache.nb.forEach(function(id){
         var b = nodesById[id];
-        if (!b || !b.pl || n >= LMAX) return;
+        if (!b || !b.pl || b.pl.nascosto || n >= LMAX) return;
         writeCurve(n, a.pl.world, b.pl.world, a.pl.sys.color, b.pl.sys.color, 1, hashFrac(a.id < b.id ? a.id + b.id : b.id + a.id));
         n++;
       });
       (a.temiAnche || []).forEach(function(k){
-        var o = systems[k]; if (!o || k === a.theme || n >= LMAX) return;
+        var o = systems[k]; if (!o || o.scale < 0.2 || k === a.theme || n >= LMAX) return;
         writeCurve(n, a.pl.world, o.pos, a.pl.sys.color, o.color, 0.4, hashFrac(a.id + k)); n++;
       });
     } else if (f && f.type === 'star' && focusCache.starCounts){
@@ -2287,7 +2305,7 @@
       for (k in counts) if (counts[k] > mx) mx = counts[k];
       for (k in counts){
         var o = systems[k];
-        if (!o || n >= LMAX) continue;
+        if (!o || o.scale < 0.2 || n >= LMAX) continue;
         writeCurve(n, f.sys.pos, o.pos, f.sys.color, o.color, 0.35 + 0.65*counts[k]/mx, hashFrac(f.sys.theme + k));
         n++;
       }
@@ -2446,7 +2464,7 @@
   var PL_MAX = 30, plPool = [];
   for (var pi=0; pi<PL_MAX; pi++){ var pd = el('div', 'plabel'); pd.style.opacity = '0'; labelsEl.appendChild(pd); plPool.push(pd); }
   function placePlanetLabel(i, n, main){
-    if (i >= PL_MAX || !n.pl || !project(n.pl.world)) return i;
+    if (i >= PL_MAX || !n.pl || n.pl.nascosto || !project(n.pl.world)) return i;
     var d = plPool[i], w = wordFor(n), c = colorForTheme(n.theme);
     if (d._w !== w){ d._w = w; d.textContent = w; }
     if (d._c !== c){ d._c = c; d.style.setProperty('--c', c); }
@@ -2496,7 +2514,7 @@
     var minP = coarse ? 18 : 11, minS = coarse ? 26 : 17;
     for (i=0;i<planetList.length;i++){
       var n = planetList[i];
-      if (!project(n.pl.world)) continue;
+      if (n.pl.nascosto || !project(n.pl.world)) continue;
       d = Math.hypot(SP.x - cx, SP.y - cy);
       dist = camera.position.distanceTo(n.pl.world);
       th = Math.max(minP, n.pl.pr*pxPerUnit/Math.max(0.1, dist) + 6);
@@ -2526,7 +2544,7 @@
     }
     for (var t in systems){
       var s = systems[t];
-      if (!project(s.pos)) continue;
+      if (s.scale < 0.2 || !project(s.pos)) continue;
       d = Math.hypot(SP.x - cx, SP.y - cy);
       dist = camera.position.distanceTo(s.pos);
       th = Math.max(minS, s.starR*pxPerUnit/Math.max(0.1, dist)*1.8);
@@ -2619,6 +2637,7 @@
   function selectStar(s){ if (s) select({ type: 'star', sys: s }); }
   function flyToStar(s){ flyTo(function(){ return s.pos; }, s.R*2.3 + 9, 1400, true); }
   function select(h){
+    if (h && nasNonNato(h)) nasFinisci();
     var prev = selected;
     selected = h || null;
     if (!selected){
@@ -3489,6 +3508,484 @@
     coreLabelS.style.opacity = (0.45 + 0.5*pulse).toFixed(2);
   }
 
+  /* ================= births ================= */
+  /* What arrived since the last visit is born on screen, once. A memory on
+     a theme with no planets yet lights a new star with an explosion, and
+     the blast leaves its planet and moons. A memory on a theme already
+     there is a planet that comes from outside, is caught by the system and
+     hits a planet already in it; the debris of the hit gather into its
+     moons (much as our own Moon was probably born from a giant impact). A
+     new moon on an old planet gathers from a ring of debris. When the
+     person is not using the view, the camera goes to each birth and then
+     back to the galaxy. What has been seen is kept in this browser, per
+     page, once its show has played: a first visit to a map that is already
+     large shows it as it is, reduced motion shows no show, and selecting
+     something not born yet ends the show at once. */
+  var NAS_KEY = 'psyche-visti:' + location.pathname, NAS_GIOVANE = 6, NAS_MAX_P = 6, NAS_MAX_L = 8, NAS_CAP = 1600, NAS_LIBERO = 20;
+  var NAS = { effetti: [], voli: [], fine: 0, visti: null, attesa: {}, inCorso: false, salvato: '', sporco: false, tocco: -1e9, aperto: false, inAttesa: 0, rifai: null };
+  var NASP = { x: 0, y: 0, z: 0, s: 0 };
+  var nasA = new THREE.Vector3(), nasB = new THREE.Vector3(), nasC = new THREE.Vector3(), nasD = new THREE.Vector3();
+  var nasQ = new THREE.Quaternion(), nasE = new THREE.Euler(), nasCol = new THREE.Color(), NAS_HOT = new THREE.Color(1, 0.8, 0.55);
+  var nasGeo = pointsGeometry(NAS_CAP), nasPts = new THREE.Points(nasGeo, pointsMaterial({ opacity: 1, attenuate: true, maxPx: 40 }));
+  nasPts.frustumCulled = false; nasPts.renderOrder = 6; nasGeo.setDrawRange(0, 0); scene.add(nasPts);
+  var nasPA = nasGeo.attributes.position.array, nasCA = nasGeo.attributes.aColor.array, nasSA = nasGeo.attributes.aSize.array, nasN = 0;
+  /* Using the view: a press or the wheel on the map itself, or a key. A click
+     on a button (the sound, say) is not, so the camera keeps following. */
+  ['pointerdown', 'wheel', 'keydown'].forEach(function(t){ window.addEventListener(t, function(e){
+    var el = e.target;
+    if (t === 'keydown' || el === renderer.domElement || (typeof stage === 'object' && stage && stage.contains && el instanceof Node && stage.contains(el))) NAS.tocco = clock;
+  }, { capture: true, passive: true }); });
+  function nasPunto(x, y, z, r, g, b, size){
+    if (nasN >= NAS_CAP) return;
+    var o = nasN*3;
+    nasPA[o] = x; nasPA[o+1] = y; nasPA[o+2] = z; nasCA[o] = r; nasCA[o+1] = g; nasCA[o+2] = b; nasSA[nasN] = size; nasN++;
+  }
+  function nasBack(p){ var q = p - 1; return 1 + 2.70158*q*q*q + 1.70158*q*q; }
+  function nasOut(p){ p = clamp(p, 0, 1); return 1 - (1 - p)*(1 - p)*(1 - p); }
+  function nasSeq(k){ var o = []; for (var i = 0; i < k; i++) o.push(i); return o; }
+  function nasSprite(e, k, tex){
+    if (!e[k]){
+      var sp = e[k] = makeSprite(tex, new THREE.Color(1, 1, 1), 0.01, 0);
+      sp.renderOrder = 7; scene.add(sp); (e.sp = e.sp || []).push(sp);
+    }
+    return e[k];
+  }
+  function nasTogli(e){ (e.sp || []).forEach(function(sp){ scene.remove(sp); sp.material.dispose(); }); e.sp = null; }
+
+  /* What this page has already shown: each memory with how many moons it
+     had. A show still to play is saved as not seen. */
+  function nasLeggi(){
+    try {
+      var s = localStorage.getItem(NAS_KEY), o = s ? JSON.parse(s) : null;
+      return (o && typeof o === 'object' && o.p && typeof o.p === 'object') ? o : null;
+    } catch (e){ return null; }
+  }
+  function nasSalva(){
+    var o = { v: 1, p: {} }, A = NAS.attesa, has = Object.prototype.hasOwnProperty;
+    nodeList.forEach(function(n){
+      if (!has.call(A, n.id)) o.p[n.id] = (n.lune || []).length;
+      else if (A[n.id] >= 0) o.p[n.id] = A[n.id];
+    });
+    try { var s = JSON.stringify(o); if (s !== NAS.salvato){ localStorage.setItem(NAS_KEY, s); NAS.salvato = s; } } catch (e){}
+  }
+
+  /* After each change of the data: what is new waits hidden, and the show
+     is planned one system at a time, after the opening flight. */
+  /* The Update button's gate (21/10/2026): what is new since the last show
+     (memories, and moons beyond those seen) stays out of the map, counts and
+     menu included, until the button is pressed, even across reloads. The
+     data itself is saved as it comes; the gate only decides what is shown.
+     A first visit to a large map, and reduced motion, let everything in. */
+  function nasCancello(docs){
+    var V = NAS.visti || (nasLeggi() || {}).p || null, has = Object.prototype.hasOwnProperty, n = 0, out = [];
+    var vivi = docs.filter(function(d){ return d && d.exists; });
+    if (NAS.aperto || reduceMotion || (!V && vivi.length > NAS_GIOVANE)){ NAS.inAttesa = 0; return vivi; }
+    V = V || {};
+    vivi.forEach(function(d){
+      if (!has.call(V, d.id)){ n++; return; }
+      var k = Math.max(0, Math.floor(+V[d.id]) || 0), x = d.data() || {};
+      if (Array.isArray(x.lune) && x.lune.length > k){
+        n += x.lune.length - k; x.lune = x.lune.slice(0, k);
+        out.push({ id: d.id, exists: true, data: function(){ return x; }, metadata: d.metadata });
+      } else out.push(d);
+    });
+    NAS.inAttesa = n;
+    return out;
+  }
+  /* The button: off while nothing waits; lit, with a soft red pulse, while
+     something does. Its click lets the news in and plays their show, and
+     being a click it also lets the browser start the sound. */
+  var nasBtn = document.getElementById('btnNuovi');
+  function nasBottone(){
+    if (!nasBtn) return;
+    var k = NAS.inAttesa;
+    nasBtn.disabled = !k; nasBtn.classList.toggle('nuovo', !!k);
+    nasBtn.title = k ? nasBtn.getAttribute('data-si').replace('%n', k) : nasBtn.getAttribute('data-no');
+    nasBtn.setAttribute('aria-label', nasBtn.title);
+  }
+  function nasAvvia(){
+    if (!NAS.inAttesa || !NAS.rifai) return;
+    NAS.aperto = true; NAS.inAttesa = 0;
+    NAS.rifai();
+    if (!NAS.inCorso) NAS.aperto = false;
+    nasBottone();
+  }
+  if (nasBtn) nasBtn.addEventListener('click', nasAvvia);
+
+  function nasciteDopoDati(){
+    nasBottone();
+    if (!nodeList.length) return;
+    var V = NAS.visti, has = Object.prototype.hasOwnProperty, muto = reduceMotion, nuoviP = [], nuoveL = [], A = NAS.attesa;
+    if (!V){
+      var prima = nasLeggi();
+      V = NAS.visti = prima ? prima.p : {};
+      if (!prima && nodeList.length > NAS_GIOVANE) muto = true;
+    }
+    nodeList.forEach(function(n){
+      var pl = n.pl, k = (n.lune || []).length, v0 = has.call(V, n.id) ? Math.max(0, Math.floor(+V[n.id]) || 0) : -1;
+      V[n.id] = k;
+      if (muto || !pl || !systems[n.theme] || pl.nasce) return;
+      if (v0 < 0){ nuoviP.push(n); return; }
+      for (var j = v0; j < k; j++){
+        if (!(pl.luneNasc && pl.luneNasc[j] !== undefined)) nuoveL.push({ n: n, j: j, v0: v0, d: Date.parse(lunaInfo(n, j).createdAt) || 0 });
+      }
+    });
+    if (!nuoviP.length && !nuoveL.length){ nasSalva(); return; }
+    nuoviP.sort(byDate);
+    nuoveL.sort(function(a, b){ return a.d - b.d; });
+    /* A long absence is not replayed in full: the oldest arrivals beyond a
+       few are simply there, in place. */
+    nuoviP.splice(0, Math.max(0, nuoviP.length - NAS_MAX_P)).forEach(function(n){
+      var s = n.pl.sys; n.pl.spawn = null;
+      if (s.born > -10 && s.born < 1e8){ s.born = -10; s.local.copy(s.localTarget); }
+    });
+    nuoveL.splice(0, Math.max(0, nuoveL.length - NAS_MAX_L));
+    var gruppi = {}, ordine = [];
+    function gruppo(n){ var t = n.theme; if (!gruppi[t]){ gruppi[t] = { s: systems[t], p: [], l: [] }; ordine.push(t); } return gruppi[t]; }
+    nuoviP.forEach(function(n){
+      var pl = n.pl, k = (n.lune || []).length;
+      gruppo(n).p.push(n); A[n.id] = -1;
+      pl.spawn = null; pl.nasce = { tipo: 'attesa' }; pl.nascosto = true; pl.luneNasc = {};
+      for (var j = 0; j < k; j++) pl.luneNasc[j] = 1e9;
+    });
+    nuoveL.forEach(function(x){
+      var pl = x.n.pl;
+      gruppo(x.n).l.push(x);
+      if (!has.call(A, x.n.id)) A[x.n.id] = x.v0;
+      pl.luneNasc = pl.luneNasc || {}; pl.luneNasc[x.j] = 1e9;
+    });
+    nasSalva();
+    NAS.inCorso = true;
+    NAS.voli = NAS.voli.filter(function(v){ return !v.ritorno; });
+    var T = Math.max(clock + (initialLoadDone ? 0.5 : 7), NAS.fine);
+    ordine.forEach(function(t){
+      var g = gruppi[t], s = g.s, VOLO = 2.4, tt = T, vivi = [], inG = {}, ord = {};
+      g.p.forEach(function(n){ inG[n.id] = 1; });
+      s.list.forEach(function(n){ if (n.pl && !inG[n.id]) vivi.push(n); });
+      var nuovo = g.p.length > 0 && !vivi.length;
+      if (nuovo){ s.born = 1e9; s.local.copy(s.localTarget); s.pos.copy(s.local).applyAxisAngle(UP, galaxyAngle); }
+      NAS.voli.push({ t: T, s: s, n: g.p.length ? null : g.l[0].n, dur: VOLO });
+      /* The camera watches the blast or the arrival from the star, then
+         goes close to the new planet to see its moons gather. */
+      g.p.forEach(function(n, i){
+        var k = (n.lune || []).length;
+        if (nuovo && i === 0){
+          var t0 = T + VOLO*0.75;
+          nasNova(n, s, t0);
+          NAS.voli.push({ t: t0 + 2.5, s: s, n: n, dur: 1.6 });
+          tt = t0 + 5.4 + 0.7*Math.max(0, k - 1);
+        } else {
+          tt = Math.max(tt, T + VOLO);
+          if (i > 0 || nuovo){ NAS.voli.push({ t: tt, s: s, n: null, dur: 1.6 }); tt += 1.7; }
+          var b = null, bd = 1e9;
+          vivi.forEach(function(o){ var d = Math.abs(o.pl.r - n.pl.r); if (d < bd){ bd = d; b = o; } });
+          nasCattura(n, s, tt, b);
+          NAS.voli.push({ t: tt + 3.3, s: s, n: n, dur: 1.6 });
+          tt += 6.6 + 0.7*Math.max(0, k - 1);
+        }
+        vivi.push(n);
+      });
+      if (g.l.length){
+        /* New moons, planet by planet, the camera on each planet in turn. */
+        tt = Math.max(tt, T + VOLO);
+        g.l.forEach(function(x, i){ if (!has.call(ord, x.n.id)) ord[x.n.id] = i; });
+        g.l.sort(function(a, b){ return (ord[a.n.id] - ord[b.n.id]) || (a.d - b.d) || (a.j - b.j); });
+        var ultimo = g.p.length ? null : g.l[0].n;
+        g.l.forEach(function(x){
+          if (x.n !== ultimo){ NAS.voli.push({ t: tt, s: s, n: x.n, dur: 1.4 }); tt += 1.4; ultimo = x.n; }
+          nasLuna(x.n, x.j, tt); tt += 1.1;
+        });
+        tt += 1.4;
+      }
+      T = tt + 0.5;
+    });
+    NAS.fine = T;
+    NAS.voli.push({ t: T + 0.6, ritorno: true, dur: 3.2 });
+  }
+  /* A new theme: the blast, then the star, then its planet gathers from the
+     glow and its moons from the debris left around it. */
+  function nasNova(n, s, t0){
+    var pl = n.pl, k = (n.lune || []).length, tc = t0 + 4.4;
+    s.born = t0 + 0.45;
+    pl.nasce = { tipo: 'nova', tp: t0 + 2.3 };
+    for (var j = 0; j < k; j++) pl.luneNasc[j] = tc + 0.1 + 0.7*j;
+    NAS.effetti.push({ tipo: 'nova', t0: t0, fine: t0 + 2.4, s: s, seme: hash32('nova:' + s.theme) });
+    NAS.effetti.push({ tipo: 'raccolta', t0: t0 + 1.35, fine: t0 + 2.4, n: n, seme: hash32('raccolta:' + n.id) });
+    NAS.effetti.push({ tipo: 'lampo', t0: t0 + 2.3, fine: t0 + 3.0, n: n });
+    NAS.effetti.push({ tipo: 'detriti', t0: t0 + 2.6, fine: tc + 0.7*Math.max(0, k - 1) + 1, n: n, lune: nasSeq(k), tc: tc, urto: false, seme: hash32('detriti:' + n.id) });
+  }
+  /* A new memory on a theme already there: caught from outside, it hits
+     the planet nearest to its own orbit, and the debris become its moons. */
+  function nasCattura(n, s, t0, b){
+    var pl = n.pl, k = (n.lune || []).length, tc = t0 + 5.1;
+    pl.nasce = { tipo: 'cattura', t0: t0, ti: t0 + 2.8, ts: t0 + 4.3, b: b, lato: hashFrac('lato:' + n.id) < 0.5 ? -1 : 1,
+      P0: null, P0w: new THREE.Vector3(), Pi: null, ctrl: new THREE.Vector3(), imp: new THREE.Vector3(), e: 0 };
+    for (var j = 0; j < k; j++) pl.luneNasc[j] = tc + 0.1 + 0.7*j;
+    NAS.effetti.push({ tipo: 'scia', t0: t0, fine: t0 + 2.85, n: n });
+    NAS.effetti.push({ tipo: 'urto', t0: t0 + 2.8, fine: t0 + 3.7, n: n, b: b });
+    NAS.effetti.push({ tipo: 'detriti', t0: t0 + 2.8, fine: tc + 0.7*Math.max(0, k - 1) + 1, n: n, lune: nasSeq(k), tc: tc, urto: true, seme: hash32('detriti:' + n.id) });
+  }
+  /* A new moon on a planet already there gathers from a ring of debris. */
+  function nasLuna(n, j, t0){
+    var tc = t0 + 1.15;
+    n.pl.luneNasc[j] = tc + 0.1;
+    NAS.effetti.push({ tipo: 'detriti', t0: t0, fine: tc + 1, n: n, lune: [j], tc: tc, urto: false, seme: hash32('luna:' + n.id + ':' + j) });
+  }
+
+  /* Called by updatePlanets for a planet being born or just hit: where it
+     is and how big, written into NASP. */
+  function nascitaPianeta(n, pl, s, x, y, z, size){
+    NASP.x = x; NASP.y = y; NASP.z = z; NASP.s = size;
+    if (pl.urto){
+      var qu = clock - pl.urto;
+      if (qu > 1.5) pl.urto = 0;
+      else if (qu >= 0) NASP.s = size*(1 + 0.4*Math.exp(-qu*3.2)*Math.abs(Math.cos(qu*11)));
+    }
+    var b = pl.nasce;
+    if (!b) return;
+    if (b.tipo === 'attesa' || (b.tipo === 'nova' && clock < b.tp) || (b.tipo === 'cattura' && clock < b.t0)){ pl.nascosto = true; NASP.s = 1e-4; return; }
+    pl.nascosto = false;
+    if (b.tipo === 'nova'){
+      var p = (clock - b.tp)/0.8;
+      if (p >= 1) pl.nasce = null; else NASP.s = size*Math.max(1e-4, nasBack(p));
+      return;
+    }
+    /* Coming in from outside, from one side of the view: a curve that bends
+       into the system, faster and faster, ending against the planet it
+       hits; then it settles into its own orbit. */
+    if (!b.P0){
+      /* It starts just outside the view, so it is seen coming in. */
+      var L = clamp(camera.position.distanceTo(s.pos)*0.95, s.R*1.5 + 8, s.R*2.6 + 22);
+      nasA.set(1, 0, 0).applyQuaternion(camera.quaternion); nasB.set(0, 1, 0).applyQuaternion(camera.quaternion); nasC.set(0, 0, -1).applyQuaternion(camera.quaternion);
+      b.P0 = new THREE.Vector3().addScaledVector(nasA, b.lato*L).addScaledVector(nasB, 0.3*L).addScaledVector(nasC, 0.25*L);
+    }
+    b.P0w.copy(s.pos).add(b.P0);
+    if (clock < b.ti){
+      var tg = b.b && b.b.pl && nodesById[b.b.id] === b.b ? b.b.pl : null;
+      if (tg){ nasA.subVectors(b.P0w, tg.world).normalize(); b.imp.copy(tg.world).addScaledVector(nasA, (pl.pr + tg.pr)*0.9); }
+      else b.imp.set(x, y, z);
+      nasA.subVectors(b.P0w, b.imp);
+      nasB.crossVectors(s.normal, nasA).normalize().multiplyScalar(nasA.length()*0.3*b.lato);
+      b.ctrl.copy(b.P0w).add(b.imp).multiplyScalar(0.5).add(nasB);
+      var pa = (clock - b.t0)/(b.ti - b.t0);
+      b.e = pa*(0.4 + 0.6*pa);
+      bez(b.P0w, b.ctrl, b.imp, b.e, nasC);
+      NASP.x = nasC.x; NASP.y = nasC.y; NASP.z = nasC.z;
+      return;
+    }
+    if (!b.Pi) b.Pi = new THREE.Vector3().copy(b.imp).sub(s.pos);
+    var q = (clock - b.ti)/(b.ts - b.ti);
+    if (q >= 1){ pl.nasce = null; return; }
+    var kk = nasOut(q), bx = s.pos.x + b.Pi.x, by = s.pos.y + b.Pi.y, bz = s.pos.z + b.Pi.z;
+    NASP.x = bx + (x - bx)*kk; NASP.y = by + (y - by)*kk; NASP.z = bz + (z - bz)*kk;
+  }
+  /* Called by updateMoons: a moon still to be born is a speck, then it
+     swells out of its debris. */
+  function fattoreLuna(pl, j){
+    var t0 = pl.luneNasc[j];
+    if (t0 === undefined) return 1;
+    var p = clock - t0;
+    if (p < 0) return 1e-4;
+    if (p >= 1){ delete pl.luneNasc[j]; return 1; }
+    return Math.max(1e-4, nasBack(p));
+  }
+
+  /* The effects, drawn as one cloud of points plus a few glows. */
+  function nasNovaPasso(e, t){
+    var s = e.s, i, o;
+    if (!e.par){
+      var r = mulberry32(e.seme); e.N = 220; e.par = new Float32Array(e.N*4);
+      for (i = 0; i < e.N; i++){
+        var u = r()*2 - 1, a = r()*Math.PI*2, w = Math.sqrt(1 - u*u);
+        o = i*4; e.par[o] = w*Math.cos(a); e.par[o+1] = u; e.par[o+2] = w*Math.sin(a); e.par[o+3] = 0.25 + 0.75*Math.pow(r(), 0.6);
+      }
+    }
+    if (!e.acceso && clock >= s.born){ e.acceso = true; s.flash = clock; }
+    var cam = camera.position.distanceTo(s.pos), big = Math.max(1, cam/40);
+    var f = nasSprite(e, 'f', glowTex), sw = nasSprite(e, 'w', ringTex), pf = t/1.3, pw = t/2.2;
+    f.position.copy(s.pos);
+    f.scale.setScalar(Math.max(s.R*3 + 12, cam*0.16)*(0.3 + 0.7*smooth01(t/0.12))*(1 + 0.35*Math.min(1, pf)));
+    f.material.opacity = pf >= 1 ? 0 : (1 - pf)*(1 - pf);
+    f.material.color.copy(WHITE).lerp(s.color, 0.8*smooth01(t/0.9));
+    sw.position.copy(s.pos);
+    sw.scale.setScalar(Math.max(0.01, (s.R*5 + 26)*nasOut(pw)));
+    sw.material.opacity = pw >= 1 ? 0 : 0.8*Math.pow(1 - pw, 1.3);
+    sw.material.color.copy(s.color).lerp(WHITE, 0.45);
+    var ex = nasOut(t/1.8), al = Math.max(0, 1 - t/2.3), heat = Math.exp(-t*1.4);
+    al *= al;
+    nasCol.copy(s.color).lerp(NAS_HOT, heat);
+    for (i = 0; i < e.N; i++){
+      o = i*4;
+      var R = (s.R*1.8 + 10)*e.par[o+3]*ex, br = al*(0.7 + 0.6*e.par[o+3])*1.6;
+      nasPunto(s.pos.x + e.par[o]*R, s.pos.y + e.par[o+1]*R, s.pos.z + e.par[o+2]*R, nasCol.r*br, nasCol.g*br, nasCol.b*br, (0.22 + 0.3*e.par[o+3])*big);
+    }
+  }
+  function nasRaccolta(e, t){
+    var pl = e.n.pl, i, o, p = clamp(t, 0, 1);
+    if (!e.par){
+      var r = mulberry32(e.seme); e.N = 80; e.par = new Float32Array(e.N*4);
+      for (i = 0; i < e.N; i++){
+        var u = r()*2 - 1, a = r()*Math.PI*2, w = Math.sqrt(1 - u*u);
+        o = i*4; e.par[o] = w*Math.cos(a); e.par[o+1] = u; e.par[o+2] = w*Math.sin(a); e.par[o+3] = 1.2 + r()*3;
+      }
+    }
+    var al = smooth01(t/0.35)*(1 - p*p*p*p)*1.3, k = 1 - p*p;
+    nasCol.set(colorForTheme(e.n.theme)).lerp(WHITE, 0.35);
+    for (i = 0; i < e.N; i++){
+      o = i*4;
+      var R = e.par[o+3]*k;
+      nasPunto(pl.world.x + e.par[o]*R, pl.world.y + e.par[o+1]*R, pl.world.z + e.par[o+2]*R, nasCol.r*al, nasCol.g*al, nasCol.b*al, pl.pr*(0.5 + 0.1*e.par[o+3]));
+    }
+  }
+  function nasLampo(e, t){
+    var pl = e.n.pl, p = t/0.7, f = nasSprite(e, 'f', glowTex);
+    f.position.copy(pl.world); f.scale.setScalar(pl.pr*22*(0.5 + 0.5*smooth01(t/0.1)));
+    f.material.opacity = p >= 1 ? 0 : Math.pow(1 - p, 1.2);
+    f.material.color.set(colorForTheme(e.n.theme)).lerp(WHITE, 0.55);
+  }
+  function nasScia(e, t){
+    var pl = e.n.pl, b = pl.nasce, f = nasSprite(e, 'f', glowTex);
+    if (!b || b.tipo !== 'cattura' || !b.P0 || clock >= b.ti){ f.material.opacity = 0; return; }
+    nasCol.set(colorForTheme(e.n.theme)).lerp(WHITE, 0.4);
+    /* A glow around the planet coming in, so the eye can follow it. */
+    f.position.copy(pl.world); f.scale.setScalar(pl.pr*14); f.material.opacity = 0.9*smooth01(t/0.3); f.material.color.copy(nasCol);
+    for (var k = 1; k <= 40; k++){
+      var ek = b.e - k*0.01;
+      if (ek <= 0) break;
+      bez(b.P0w, b.ctrl, b.imp, ek, nasD);
+      var al = Math.pow(1 - k/41, 1.5)*1.4;
+      nasPunto(nasD.x, nasD.y, nasD.z, nasCol.r*al, nasCol.g*al, nasCol.b*al, pl.pr*(2.3 - k*0.045));
+    }
+  }
+  function nasUrto(e, t){
+    var pl = e.n.pl, tg = e.b && e.b.pl && nodesById[e.b.id] === e.b ? e.b.pl : null;
+    if (!e.via){ e.via = true; if (tg) tg.urto = clock; }
+    var f = nasSprite(e, 'f', glowTex), w = nasSprite(e, 'w', ringTex), p = t/0.8;
+    nasA.copy(pl.world); if (tg) nasA.lerp(tg.world, 0.5);
+    var rr = pl.pr + (tg ? tg.pr : 0);
+    f.position.copy(nasA); f.scale.setScalar(rr*(tg ? 8 : 5)*(0.6 + 0.4*smooth01(t/0.06)));
+    f.material.opacity = p >= 1 ? 0 : (1 - p)*(1 - p);
+    f.material.color.copy(NAS_HOT).lerp(WHITE, 0.35);
+    w.position.copy(nasA); w.scale.setScalar(Math.max(0.01, rr*(tg ? 9 : 5)*nasOut(p*1.3)));
+    w.material.opacity = p >= 1 ? 0 : 0.7*(1 - p);
+    w.material.color.copy(NAS_HOT);
+  }
+  function nasDetriti(e, t){
+    var pl = e.n.pl, i, o;
+    if (!e.par){
+      var r = mulberry32(e.seme), q = pl.q || IDQ;
+      e.N = e.urto ? 130 : 90; e.par = new Float32Array(e.N*10);
+      for (i = 0; i < e.N; i++){
+        nasE.set((r() - 0.5)*0.8, r()*Math.PI*2, 0, 'YXZ'); nasQ.setFromEuler(nasE).premultiply(q);
+        nasA.set(1, 0, 0).applyQuaternion(nasQ); nasB.set(0, 0, 1).applyQuaternion(nasQ);
+        var rad = 1.7 + r()*2.8;
+        o = i*10;
+        e.par[o] = rad; e.par[o+1] = r()*Math.PI*2; e.par[o+2] = (2 + r()*1.6)/Math.sqrt(rad);
+        e.par[o+3] = nasA.x; e.par[o+4] = nasA.y; e.par[o+5] = nasA.z; e.par[o+6] = nasB.x; e.par[o+7] = nasB.y; e.par[o+8] = nasB.z;
+        e.par[o+9] = 0.45 + 0.6*r();
+      }
+    }
+    var sz = pl.size || pl.pr, L = e.lune.length, fin = smooth01(t/0.5), heat = e.urto ? Math.exp(-t*1.5) : 0;
+    var grow = e.urto ? 0.3 + 0.7*nasOut(t/0.5) : 1;
+    nasCol.set(colorForTheme(e.n.theme)).lerp(MOON_ROCK, 0.35);
+    var cr = nasCol.r + (NAS_HOT.r - nasCol.r)*heat, cg = nasCol.g + (NAS_HOT.g - nasCol.g)*heat, cb = nasCol.b + (NAS_HOT.b - nasCol.b)*heat;
+    for (i = 0; i < e.N; i++){
+      o = i*10;
+      var rr = e.par[o]*sz*grow, a = e.par[o+1] + e.par[o+2]*t, ca = Math.cos(a)*rr, sa = Math.sin(a)*rr;
+      var x = pl.world.x + e.par[o+3]*ca + e.par[o+6]*sa, y = pl.world.y + e.par[o+4]*ca + e.par[o+7]*sa, z = pl.world.z + e.par[o+5]*ca + e.par[o+8]*sa;
+      var al = e.urto ? 1 : fin, m = L ? i % L : 0, qc = (clock - e.tc - 0.7*m)/0.9;
+      if (qc > 0){
+        if (qc >= 1) continue;
+        var mo = L && pl.moons ? pl.moons[e.lune[m]] : null, ee = qc*qc;
+        if (mo){ x += (mo.world.x - x)*ee; y += (mo.world.y - y)*ee; z += (mo.world.z - z)*ee; }
+        al *= 1 - ee;
+      }
+      var br = al*(1.3 + 1.2*heat);
+      nasPunto(x, y, z, cr*br, cg*br, cb*br, e.par[o+9]*sz*0.9);
+    }
+  }
+
+  /* Sounds of the births (21/10/2026), each at its moment: the blast of a new
+     star, the blow of a caught planet, a light bell for each moon. Nearer
+     births sound louder, and from their side of the screen. The sounds live
+     with the music (window.psycheAudio): silent until the first gesture, or
+     with the rumble switched off. */
+  var nasSnd = new THREE.Vector3();
+  function nasSuono(tipo, pos, n){
+    var A = window.psycheAudio;
+    if (!A || !A.colpo) return;
+    var d = camera.position.distanceTo(pos), v = nasSnd.copy(pos).project(camera);
+    A.colpo(tipo, v.z < 1 ? clamp(v.x*0.6, -0.6, 0.6) : 0, clamp((tipo === 'esplosione' ? 60 : 24)/Math.max(d, 0.001), 0.3, 1), n || 0);
+  }
+  function nasSuoni(e){
+    if (e.tipo === 'nova' || e.tipo === 'urto'){
+      if (!e.suonato){ e.suonato = true; nasSuono(e.tipo === 'nova' ? 'esplosione' : 'urto', e.tipo === 'nova' ? e.s.pos : e.n.pl.world, 0); }
+    } else if (e.tipo === 'detriti'){
+      e.suonate = e.suonate || 0;
+      while (e.suonate < e.lune.length && clock >= e.tc + 0.1 + 0.7*e.suonate){ nasSuono('luna', e.n.pl.world, e.lune[e.suonate]); e.suonate++; }
+    }
+  }
+
+  /* Every frame, after the planets: the camera goes to each birth in turn
+     while the view is free (nothing open, untouched for a while), and the
+     effects run. */
+  function nasVola(v){
+    if (v.ritorno){ flyTo(originFn, galaxyDist(), v.dur*1000, false, GALAXY_DIR); return; }
+    if (v.n && v.n.pl && nodesById[v.n.id] === v.n){
+      /* The same view as a click on the planet: from above its system's
+         plane, the star off to one side. */
+      var pl = v.n.pl, nrm = nasA.copy(pl.sys.normal), cur = nasB.subVectors(camera.position, controls.target).normalize();
+      if (nrm.dot(cur) < 0) nrm.negate();
+      var ed = new THREE.Vector3().addScaledVector(nrm, 0.85).addScaledVector(cur, 0.3);
+      flyTo(function(){ return pl.world; }, Math.max(11, pl.pr*26), v.dur*1000, true, ed.lengthSq() > 1e-4 ? ed : null);
+    }
+    else { var s = v.s; flyTo(function(){ return s.pos; }, s.R*2.3 + 9, v.dur*1000, true); }
+  }
+  function stepNascite(){
+    var i, e, keep = [], libero = !selected && !drawerOpen && clock - NAS.tocco > NAS_LIBERO;
+    for (i = 0; i < NAS.voli.length; i++){
+      var v = NAS.voli[i];
+      if (clock < v.t){ keep.push(v); continue; }
+      if (libero && (v.ritorno || systems[v.s.theme] === v.s)) nasVola(v);
+    }
+    NAS.voli = keep; keep = [];
+    nasN = 0;
+    for (i = 0; i < NAS.effetti.length; i++){
+      e = NAS.effetti[i];
+      var vivo = e.n ? (nodesById[e.n.id] === e.n && !!e.n.pl) : systems[e.s.theme] === e.s;
+      if (!vivo || clock > e.fine){ nasTogli(e); continue; }
+      keep.push(e);
+      if (clock < e.t0) continue;
+      var t = clock - e.t0;
+      nasSuoni(e);
+      if (e.tipo === 'nova') nasNovaPasso(e, t);
+      else if (e.tipo === 'raccolta') nasRaccolta(e, t);
+      else if (e.tipo === 'lampo') nasLampo(e, t);
+      else if (e.tipo === 'scia') nasScia(e, t);
+      else if (e.tipo === 'urto') nasUrto(e, t);
+      else nasDetriti(e, t);
+    }
+    NAS.effetti = keep;
+    nasGeo.setDrawRange(0, nasN);
+    if (nasN || NAS.sporco){ var ga = nasGeo.attributes; ga.position.needsUpdate = true; ga.aColor.needsUpdate = true; ga.aSize.needsUpdate = true; }
+    NAS.sporco = nasN > 0;
+    if (NAS.inCorso && !NAS.effetti.length && clock > NAS.fine){ NAS.inCorso = false; NAS.attesa = {}; nasSalva(); NAS.aperto = false; }
+  }
+  /* Is what is being selected still waiting to be born? */
+  function nasNonNato(h){
+    if (h.type === 'star') return !!h.sys && h.sys.scale < 0.99 && h.sys.born > clock - 1.4;
+    if (h.type !== 'planet' && h.type !== 'moon') return false;
+    var pl = h.node && h.node.pl;
+    return !!(pl && (pl.nasce || (h.type === 'moon' && pl.luneNasc && pl.luneNasc[h.idx] !== undefined)));
+  }
+  /* Everything still to be born is there at once, and counts as seen. */
+  function nasFinisci(){
+    nodeList.forEach(function(n){ var pl = n.pl; if (pl){ pl.nasce = null; pl.nascosto = false; pl.luneNasc = null; pl.urto = 0; } });
+    for (var t in systems){ var s = systems[t]; if (s.born > clock - 1.4){ s.born = -10; s.local.copy(s.localTarget); } }
+    NAS.effetti.forEach(nasTogli); NAS.effetti = []; NAS.voli = []; NAS.fine = 0;
+    NAS.inCorso = false; NAS.attesa = {}; nasSalva(); NAS.aperto = false;
+  }
+
   /* ================= frame ================= */
   var lastT = 0;
   function frame(tms){
@@ -3503,6 +4000,7 @@
     galaxyAngle += dt*timeScale*GAL_OMEGA;
     stepSystems(dt);
     updatePlanets();
+    stepNascite();
     stepFly(); stepFollow();
     updateViewOffset(dt);
     /* Near the nucleus the camera may not cross the event horizon. */
@@ -3790,13 +4288,15 @@
 
   /* ================= database ================= */
   function noData(){
-    if (!nodeList.length) setEmpty('Waiting for the first memory', 'Every memory becomes a planet — a thought, a wish, a memory. Load your nodes with “Import”, bottom right.');
+    if (!nodeList.length && NAS.inAttesa) setEmpty('Something new is here', 'Press “Update”, top right, to watch it being born.');
+    else if (!nodeList.length) setEmpty('Waiting for the first memory', 'Every memory becomes a planet — a thought, a wish, a memory. Load your nodes with “Import”, bottom right.');
   }
   function dataFailed(){
     if (!nodeList.length) setEmpty('Cannot read the memories', 'This browser does not let the page save its data. Try another browser.');
   }
   function afterSnapshot(snap){
     computeLayout();
+    nasciteDopoDati();
     if (nodeList.length) hideEmpty();
     else if (!(snap && snap.metadata && snap.metadata.fromCache)) noData();
     if (!initialLoadDone){
@@ -3815,10 +4315,11 @@
     var settled = false, nodesRetries = 0;
     var timer = setTimeout(function(){ if (!settled) setEmpty('Lighting up space…', 'The memories are taking longer than usual to arrive.'); }, 12000);
     function subscribeNodes(db){
-      db.collection('nodes').onSnapshot(function(snap){
+      db.collection('nodes').onSnapshot(function nasDati(snap){
+        NAS.rifai = function(){ nasDati(snap); };
         settled = true; clearTimeout(timer); nodesRetries = 0;
         var ids = {};
-        snap.docs.forEach(function(doc){ if (!doc.exists) return; upsertNode(doc); ids[doc.id] = true; });
+        nasCancello(snap.docs).forEach(function(doc){ upsertNode(doc); ids[doc.id] = true; });
         nodeList = nodeList.filter(function(n){ if (ids[n.id]) return true; delete nodesById[n.id]; return false; });
         afterSnapshot(snap);
       }, function(e){
@@ -3875,4 +4376,172 @@
 })();
 </script>
 
+<script>
+/* Sound of the map: a deep, very slow pad for loneliness in deep space, and a faint rumble, as if something huge
+   were moving far away. Both are synthesized live with Web Audio: no audio files, no rights to clear. Both are on by
+   default; browsers only allow sound after the first gesture, so it starts at the first click, key or wheel. */
+(function(){
+  var KEY = 'psyche-audio', T = {"mOn": "Music on: click to turn it off", "mOff": "Music off: click to turn it on", "rOn": "Background rumble and birth sounds on: click to turn them off", "rOff": "Background rumble and birth sounds off: click to turn them on", "mL": "Music", "rL": "Background rumble"};
+  var st = { musica: true, rombo: true };
+  try { var s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s){ st.musica = s.musica !== false; st.rombo = s.rombo !== false; } } catch (e){}
+  var bM = document.getElementById('btnMusica'), bR = document.getElementById('btnRombo');
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC || !bM || !bR){ if (bM) bM.hidden = true; if (bR) bR.hidden = true; return; }
+  var ctx = null, gMus = null, gRom = null, timer = null;
+  var VOL_MUS = 0.11, VOL_ROM = 0.30;   // the rumble sits far under the hearing threshold of small speakers on purpose
+
+  function draw(){
+    bM.classList.toggle('off', !st.musica); bM.setAttribute('aria-pressed', st.musica ? 'true' : 'false');
+    bM.title = st.musica ? T.mOn : T.mOff;
+    bR.classList.toggle('off', !st.rombo); bR.setAttribute('aria-pressed', st.rombo ? 'true' : 'false');
+    bR.title = st.rombo ? T.rOn : T.rOff;
+  }
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e){} }
+  function fade(g, v){ if (!g) return; var t = ctx.currentTime; g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.linearRampToValueAtTime(v, t + 2.5); }
+
+  function reverb(sec){
+    var n = Math.floor(ctx.sampleRate * sec), b = ctx.createBuffer(2, n, ctx.sampleRate);
+    for (var c = 0; c < 2; c++){ var d = b.getChannelData(c); for (var i = 0; i < n; i++) d[i] = (Math.random()*2 - 1) * Math.pow(1 - i/n, 2.6); }
+    var r = ctx.createConvolver(); r.buffer = b; return r;
+  }
+  function lfo(freq, depth, target){
+    var o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = freq; g.gain.value = depth;
+    o.connect(g); g.connect(target); o.start(); return o;
+  }
+
+  function buildRumble(){
+    gRom = ctx.createGain(); gRom.gain.value = 0; gRom.connect(ctx.destination);
+    // brown noise: the low, shapeless body of something very large
+    var n = ctx.sampleRate * 8, buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0), last = 0;
+    for (var i = 0; i < n; i++){ last = (last + 0.02*(Math.random()*2 - 1)) / 1.02; d[i] = last * 3.5; }
+    var src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+    var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 70; lp.Q.value = 0.7;
+    lfo(0.021, 25, lp.frequency);                       // the filter opens and closes over ~48 s: the mass "moves"
+    var body = ctx.createGain(); body.gain.value = 0.6; lfo(0.013, 0.35, body.gain);   // slow swell, ~77 s
+    src.connect(lp); lp.connect(body); body.connect(gRom); src.start();
+    // two very low tones a little apart: a slow beat, felt more than heard
+    [31, 31.4].forEach(function(f){
+      var o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.value = 0.18;
+      o.connect(g); g.connect(gRom); o.start();
+    });
+  }
+
+  // Music: long chords that rise and fade, in a quiet minor mode, with a lot of space between them.
+  var CHORDS = [[45, 52, 57, 64], [41, 48, 55, 60], [43, 50, 55, 62], [40, 47, 52, 59], [38, 45, 52, 57], [41, 48, 53, 60]];
+  var HIGH = [69, 71, 72, 76, 79, 81, 84];
+  var ci = 0, verb = null, dry = null;
+  function hz(m){ return 440 * Math.pow(2, (m - 69) / 12); }
+  function voice(m, t, dur, peak, type){
+    var o = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter();
+    o.type = type || 'triangle'; o2.type = 'sine'; o.frequency.value = hz(m); o2.frequency.value = hz(m) * 1.003;
+    lp.type = 'lowpass'; lp.frequency.value = 900;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + dur*0.38); g.gain.linearRampToValueAtTime(0, t + dur);
+    o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(verb); g.connect(dry);
+    o.start(t); o2.start(t); o.stop(t + dur + 0.1); o2.stop(t + dur + 0.1);
+  }
+  function bell(t){
+    var m = HIGH[Math.floor(Math.random()*HIGH.length)], o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = hz(m);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.05, t + 0.4); g.gain.exponentialRampToValueAtTime(0.0001, t + 9);
+    o.connect(g); g.connect(verb); o.start(t); o.stop(t + 9.2);
+  }
+  function step(){
+    if (!ctx || ctx.state !== 'running'){ return; }
+    var t = ctx.currentTime + 0.1, ch = CHORDS[ci++ % CHORDS.length], dur = 22;
+    ch.forEach(function(m, k){ voice(m, t + k*0.9, dur, k === 0 ? 0.16 : 0.10); });
+    if (Math.random() < 0.75) bell(t + 4 + Math.random()*8);
+    if (Math.random() < 0.4) bell(t + 12 + Math.random()*6);
+  }
+  function buildMusic(){
+    gMus = ctx.createGain(); gMus.gain.value = 0; gMus.connect(ctx.destination);
+    verb = reverb(7); var wet = ctx.createGain(); wet.gain.value = 0.85; verb.connect(wet); wet.connect(gMus);
+    dry = ctx.createGain(); dry.gain.value = 0.25; dry.connect(gMus);
+    step(); timer = setInterval(step, 14000);           // chords overlap: one every 14 s, each lasts 22 s
+  }
+
+  /* Sounds of the births (21/10/2026): a deep blast when a star is born, a dull blow with crackles when a caught
+     planet hits another, a light bell for each moon, climbing on the scale of the music's bells. Synthesized like
+     the rest, kept low and under the rumble's switch; a limiter keeps many births together from getting loud. The
+     births call window.psycheAudio.colpo(kind, pan, near, n): silent until the first gesture, like the music. */
+  var VOL_COL = 1, POST_COL = 0.4, kCol = null, rumBuf = null, rumCtx = null;
+  var LUNE = [76, 79, 81, 84, 86, 88, 91, 93];          // E G A C D E G A
+  function rumore(ac){
+    if (rumCtx !== ac){
+      var n = Math.floor(ac.sampleRate*4), d;
+      rumBuf = ac.createBuffer(1, n, ac.sampleRate); d = rumBuf.getChannelData(0);
+      for (var i = 0; i < n; i++) d[i] = Math.random()*2 - 1;
+      rumCtx = ac;
+    }
+    return rumBuf;
+  }
+  function catena(ac){
+    var bus = ac.createGain(), lim = ac.createDynamicsCompressor(), post = ac.createGain(), dry = ac.createGain(), rv = ac.createConvolver(), wet = ac.createGain();
+    lim.threshold.value = -14; lim.knee.value = 4; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.25;
+    post.gain.value = POST_COL;                          // takes back the gain the compressor adds by itself
+    var n = Math.floor(ac.sampleRate*3), b = ac.createBuffer(2, n, ac.sampleRate);
+    for (var c = 0; c < 2; c++){ var d = b.getChannelData(c); for (var i = 0; i < n; i++) d[i] = (Math.random()*2 - 1)*Math.pow(1 - i/n, 3.2); }
+    rv.buffer = b; wet.gain.value = 0.3;
+    dry.connect(bus); rv.connect(wet); wet.connect(bus); bus.connect(lim); lim.connect(post); post.connect(ac.destination);
+    return { bus: bus, dry: dry, rv: rv };
+  }
+  function suona(ac, k, tipo, t, pan, vol, n){
+    var out = ac.createGain(); out.gain.value = vol;
+    if (ac.createStereoPanner){ var p = ac.createStereoPanner(); p.pan.value = pan || 0; out.connect(p); p.connect(k.dry); p.connect(k.rv); }
+    else { out.connect(k.dry); out.connect(k.rv); }
+    function curva(g, t1, picco, tA, tD){ g.gain.setValueAtTime(0, t1); g.gain.linearRampToValueAtTime(picco, t1 + tA); g.gain.exponentialRampToValueAtTime(0.0001, t1 + tD); }
+    function tono(forma, f0, f1, tf, picco, tA, tD){
+      var o = ac.createOscillator(), g = ac.createGain(); o.type = forma;
+      o.frequency.setValueAtTime(f0, t); if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + tf);
+      curva(g, t, picco, tA, tD); o.connect(g); g.connect(out); o.start(t); o.stop(t + tD + 0.05);
+    }
+    function soffio(filtro, f0, f1, tf, q, picco, tA, tD, t1){
+      var s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain();
+      s.buffer = rumore(ac); s.loop = true; f.type = filtro; f.Q.value = q;
+      f.frequency.setValueAtTime(f0, t1); if (f1 !== f0) f.frequency.exponentialRampToValueAtTime(f1, t1 + tf);
+      curva(g, t1, picco, tA, tD); s.connect(f); f.connect(g); g.connect(out); s.start(t1, Math.random()*3.5); s.stop(t1 + tD + 0.05);
+    }
+    if (tipo === 'esplosione'){
+      soffio('bandpass', 1800, 700, 0.4, 0.7, 0.1, 0.006, 0.6, t);       // the crack of the blast
+      tono('sine', 85, 30, 1.6, 0.30, 0.02, 4.5);                         // the blow, felt more than heard
+      tono('triangle', 110, 42, 1.8, 0.10, 0.03, 3.5);                    // its body, for small speakers
+      soffio('lowpass', 2000, 120, 6, 0.5, 0.5, 0.08, 12, t);             // the roar, dying slowly
+    } else if (tipo === 'urto'){
+      tono('sine', 150, 45, 0.35, 0.25, 0.006, 1.1);                       // the blow
+      soffio('lowpass', 2500, 250, 0.5, 0.7, 0.14, 0.004, 1.4, t);        // the crash
+      for (var i = 0; i < 16; i++){                                       // the crackle of the debris
+        var ti = t + 0.08 + Math.pow(Math.random(), 1.6)*2.2, fc = 1200 + Math.random()*3500;
+        soffio('bandpass', fc, fc, 0, 3, 0.35*(1 - 0.6*i/16)*(0.5 + 0.5*Math.random()), 0.001, 0.02 + Math.random()*0.05, ti);
+      }
+    } else {
+      var f = hz(LUNE[(n || 0) % LUNE.length]);                            // a light bell
+      tono('sine', f, f, 0, 0.045, 0.006, 2.2);
+      tono('sine', f*2.003, f*2.003, 0, 0.010, 0.004, 0.9);
+      tono('sine', f*3, f*3, 0, 0.003, 0.003, 0.35);
+    }
+  }
+  function colpo(tipo, pan, vol, n){
+    if (!ctx || ctx.state !== 'running' || !st.rombo) return false;
+    if (!kCol){ kCol = catena(ctx); kCol.bus.gain.value = VOL_COL; }
+    suona(ctx, kCol, tipo, ctx.currentTime + 0.02, pan || 0, vol == null ? 1 : vol, n || 0);
+    return true;
+  }
+
+  function start(){
+    if (ctx){ if (ctx.state === 'suspended') ctx.resume(); return; }
+    ctx = new AC();
+    buildRumble(); buildMusic();
+    var go = function(){ fade(gMus, st.musica ? VOL_MUS : 0); fade(gRom, st.rombo ? VOL_ROM : 0); step(); };
+    if (ctx.state === 'running') go(); else ctx.resume().then(go);
+  }
+  function gesture(){ start(); ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(function(e){ window.removeEventListener(e, gesture, true); }); }
+  ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(function(e){ window.addEventListener(e, gesture, true); });
+  try { start(); } catch (e){}                        // allowed at once only if the browser already trusts the page
+
+  bM.addEventListener('click', function(){ st.musica = !st.musica; save(); draw(); if (ctx) fade(gMus, st.musica ? VOL_MUS : 0); });
+  bR.addEventListener('click', function(){ st.rombo = !st.rombo; save(); draw(); if (ctx) fade(gRom, st.rombo ? VOL_ROM : 0); if (kCol) fade(kCol.bus, st.rombo ? VOL_COL : 0); });
+  document.addEventListener('visibilitychange', function(){ if (!ctx) return; if (document.hidden) ctx.suspend(); else ctx.resume(); });
+  window.psycheAudio = { colpo: colpo, catena: catena, suona: suona };
+  draw();
+})();
+</script>
 </body></html>

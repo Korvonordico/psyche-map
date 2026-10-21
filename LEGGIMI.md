@@ -113,6 +113,14 @@ Per aggiornare: `git pull`, poi di nuovo il comando di installazione. La tua map
   pannello; passa sopra una luna per leggerla e cliccala per aprirla. Esc chiude.
 - La casella di ricerca trova una parola nei pianeti e nelle lune.
 - Personalizza (tasto G): colori, bagliore e velocità. Le modifiche restano in questo browser.
+- Musica e rombo di fondo partono accesi: i due pulsanti in alto a destra, accanto a Personalizza, li spengono e li
+  riaccendono. Il browser fa partire il suono solo dopo il primo clic sulla pagina.
+- Quando arrivano ricordi o lune nuove, il pulsante «Aggiorna» (la freccia circolare in alto a destra) diventa rosso
+  e lampeggia piano. Finché non lo tocchi le novità restano nascoste, anche nel contatore e anche se ricarichi la
+  pagina. Quando lo tocchi le vedi nascere: un'esplosione accende una stella nuova, un pianeta viene catturato con un
+  urto, le lune nuove nascono da un anello di detriti. La vista segue le nascite finché non tocchi la mappa; il
+  pulsante del rombo spegne anche i loro suoni. Se apri la pagina per la prima volta con più di sei ricordi già
+  dentro, o se il sistema chiede meno animazioni, compare tutto subito.
 - Serve internet: la grafica 3D arriva da cdn.jsdelivr.net.
 
 ## Comandi
