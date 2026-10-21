@@ -20,27 +20,53 @@ La struttura segue il **Self-Memory System** di Conway e Pleydell-Pearce (2000),
 
 | Sulla mappa | Nel modello di Conway | Cosa contiene |
 |---|---|---|
-| Nucleo | il sé che lavora | chi sei oggi, i tuoi scopi |
-| Stelle | periodi della vita / temi | amore, famiglia, paura, lavoro... 24 temi, fissi: non si chiudono mai e possono ricrescere anni dopo |
+| Nucleo | il sé che lavora | i tuoi scopi; per gioco, un'ipotesi su chi vorresti essere |
+| Stelle | periodi della vita / temi | amore, famiglia, paura, lavoro... 26 temi, fissi: non si chiudono mai e possono ricrescere anni dopo |
 | Pianeti | eventi generali | un ricordo o una situazione; due date: quando è successo e quando l'hai raccontato |
 | Lune | dettagli specifici | un odore, una frase, un'immagine: i dettagli |
 
 Un pianeta gira attorno a una stella; se appartiene anche a un altro tema, un filo sottile lo lega a quella
 seconda stella.
 
-**Si votano solo le lune**, perché un dettaglio è l'unica cosa che si può davvero risentire. Ogni luna ha un segno
-(negativo, neutro, positivo) e una forza da 1 a 5, *come l'hai vissuta allora* (valenza e attivazione: Russell,
-1980; la scala SAM: Bradley e Lang, 1994). Quando torni su un ricordo, l'IA aggiunge un voto *adesso*, così vedi
-come è cambiata la sensazione: di solito il negativo sbiadisce più in fretta del positivo (il Fading Affect Bias).
-I pianeti mostrano la media delle loro lune e la tendenza dei voti *adesso*, mai un numero solo.
+**Si contano solo le lune**, perché un dettaglio è l'unica cosa che si può davvero risentire. Ogni luna ha due conti
+separati, *come l'hai vissuta allora*: quanto positivo e quanto negativo, ognuno da 0 (per niente) a 4 (moltissimo).
+Due conti e non un numero con il segno, perché un dettaglio può essere bello e doloroso insieme (Cacioppo e
+Berntson, 1994; la griglia da 0 a 4 è quella di Larsen e altri, 2009). Quando torni su un ricordo, l'IA aggiunge una
+rilettura *adesso*, così vedi come è cambiata la sensazione: di solito il negativo sbiadisce più in fretta del
+positivo (il Fading Affect Bias). Pianeti, stelle e mappa intera sommano i conti delle loro lune, mai una media, e
+dicono cosa prevale: il positivo, il negativo, tutti e due (ambivalente) o nessuno (neutro).
 
-I voti li dà l'IA da sola e ti chiede in chat se vanno bene. Se non rispondi, restano quelli.
+I conti li dà l'IA leggendo le tue parole: nessuno li mette a mano.
 
 Ogni pianeta ha anche un **taccuino dello psicologo**: poche righe in terza persona su cosa è successo e cosa ha
 lasciato, e i meccanismi psicologici riconosciuti che tocca (evitamento, rimuginio, perdita di fiducia...), ognuno
 con quello che diventa quando è estremo e stabile e la fonte ufficiale (DSM-5-TR, ICD-11). Sono ipotesi per
 capirti meglio, mai diagnosi: per un disturbo servono un clinico, più segni insieme, una durata precisa e un danno
 vero alla vita di tutti i giorni.
+
+Accanto al taccuino può esserci **la voce di un autore**: un autore vero, l'opera con l'anno e un'idea riassunta
+dall'IA che aiuta a leggere il ricordo. Non è una citazione: se ti interessa, controlla l'opera.
+
+Ogni pianeta ha poi alcune **misure automatiche**, anche queste mai messe a mano; il pannello mostra la fonte e il
+limite di ognuna:
+
+- **centralità**: quanto un ricordo pesa su chi sei. Conta i giorni in cui ne hai parlato, i legami con altri
+  ricordi e le frasi di identità come «da allora» (Centrality of Event Scale, Berntsen e Rubin, 2006, adattata);
+- **elaborazione**: quante parole di causa e di comprensione usi quando ne parli, e se crescono o calano dalla prima
+  volta all'ultima (Pennebaker, 1997);
+- **vividezza**: quanti dei dettagli raccontati sono vissuti e quanti sono commenti (Autobiographical Interview,
+  Levine e altri, 2002). Li divide l'IA, il programma fa il conto;
+- **tipo di ricordo**: un momento singolo, ripetuto o un periodo (Williams e Broadbent, 1986), e il suo ruolo,
+  per esempio un inizio o una svolta (Pillemer, 2001);
+- **tipi di dettaglio**: quanti dei cinque tipi (evento, luogo, tempo, sensi, emozioni) toccano le lune (Levine e
+  altri, 2002);
+- **significato**: le lezioni e le comprensioni che dici con parole tue (McLean e Thorne, 2003; Blagov e Singer,
+  2004).
+
+Il **nucleo**, il buco nero al centro, prova a indovinare **chi vorresti essere** partendo dai ricordi più centrali
+(sé ideale: Higgins, 1987; sé possibili: Markus e Nurius, 1986). Ci prova solo quando ci sono almeno 20 ricordi su
+almeno 3 stelle; prima dice «servono più dati». È un gioco, da non prendere sul serio: non è un test né una
+diagnosi, e può sbagliare di molto.
 
 ## Come si collega alla tua IA
 
@@ -49,7 +75,7 @@ scrivi alla tua IA ──► hook ──► diario (sul tuo PC)
                          │
                          └──► i pianeti più vicini arrivano all'IA prima che risponda
 
-ogni mattina ──► Claude Code legge il diario ──► pianeti, lune, voti, taccuino nuovi
+ogni mattina ──► Claude Code legge il diario ──► pianeti, lune, conti, taccuino nuovi
                  controllo: ogni ricordo deve essere con le tue parole, altrimenti si butta
                  le frasi usate vanno in un archivio chiuso; le altre si cancellano
 ```
@@ -95,8 +121,6 @@ Per aggiornare: `git pull`, poi di nuovo il comando di installazione. La tua map
 python collegamento/psyche.py stato             cosa c'è sulla mappa, cosa aspetta
 python collegamento/psyche.py lavora            fa subito il lavoro del mattino
 python collegamento/psyche.py cerca "parole"    i pianeti più vicini, con i dettagli
-python collegamento/psyche.py voto ID N SEGNO FORZA [adesso]   conferma o corregge il voto di una luna
-python collegamento/psyche.py nucleo "chi sei, in poche righe"
 python collegamento/psyche.py spegni | accendi  ferma o riavvia la scrittura del diario
 python collegamento/psyche.py disinstalla       toglie hook e attività; i tuoi dati restano
 ```
@@ -112,28 +136,33 @@ i file JSON). Importa accetta lo stesso JSON.
 
 ```json
 {
-  "core": { "nucleo": { "label": "NUCLEO", "description": "chi sei, in poche righe" } },
+  "core": { "nucleo": { "label": "NUCLEO" } },
   "nodes": {
     "porto-2026-10-21": {
       "word": "PORTO", "theme": "infanzia", "temiAnche": ["famiglia"], "weight": 2,
       "text": "il ricordo, con le tue parole", "accadutoIl": "quando avevo otto anni",
       "createdAt": "2026-10-21T08:00:00+02:00", "linkedTo": [],
       "lune": [
-        { "word": "MANO", "text": "un dettaglio", "segno": 1, "forza": 5,
-          "adesso": [ { "data": "2026-11-02", "segno": 1, "forza": 4 } ] }
+        { "word": "MANO", "text": "un dettaglio", "pos": 3, "neg": 2,
+          "adesso": [ { "data": "2026-11-02", "pos": 3, "neg": 0 } ] }
       ],
       "taccuino": ["poche righe in terza persona"],
       "meccanismi": [ { "nome": "evitamento", "testo": "cos'è e come si vede qui",
-                        "estremo": "cosa diventa quando è estremo e stabile", "fonte": "DSM-5-TR, APA 2022" } ]
+                        "estremo": "cosa diventa quando è estremo e stabile", "fonte": "DSM-5-TR, APA 2022" } ],
+      "voce": { "autore": "John Bowlby", "opera": "Una base sicura, 1988", "idea": "un'idea riassunta, non una citazione" }
     }
   }
 }
 ```
 
-- `theme` è una delle 24 chiavi: identita, amore, metodo, relazione, creazione, famiglia, conflitto, solitudine,
+- `theme` è una delle 26 chiavi: identita, amore, metodo, relazione, creazione, famiglia, conflitto, solitudine,
   sostanza, ia, morte, sessualita, corpo, cura, infanzia, valore, denaro, casa, tempo, desiderio, lavoro, obiettivo,
-  paura, ricordo.
-- `segno` è -1, 0 o 1; `forza` va da 1 a 5; `adesso` tiene i voti *adesso* dati dopo.
+  paura, ricordo, colpa, scoperta.
+- `pos` e `neg` sono i due conti di una luna, da 0 a 4; `adesso` tiene le riletture fatte dopo, con gli stessi conti.
+- `voce` è facoltativa; in `opera` va anche l'anno.
+- L'ipotesi del nucleo (`ipotesi`, `basi`), `misure` e `menzioni` li scrive il lavoro del mattino: a mano non servono.
+- I file vecchi, con `segno` e `forza` o con `valore` da -10 a +10, si leggono ancora: la pagina e il programma li
+  trasformano da soli nei due conti.
 - `accadutoIl` è quando è successo, a parole; `createdAt` è quando è stato scritto. `weight` va da 1 a 3.
 - Tutti i campi tranne `word`, `theme` e `text` si possono lasciare fuori.
 

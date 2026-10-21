@@ -9,11 +9,10 @@ Tested only on Windows 11. Other systems and other AIs: you are free to adapt th
   python psyche.py disinstalla              removes hooks and the morning task (your data stays)
   python psyche.py cerca "parole"           nearest planets, with details (for the AI)
   python psyche.py lavora                   morning job: diary -> map (uses claude -p)
-  python psyche.py voto ID N SEGNO FORZA [adesso]   confirm or fix a moon's vote
-  python psyche.py nucleo "chi sei"         the centre of the map, in a few lines
   python psyche.py accendi | spegni | stato diary recording on / off, status
   python psyche.py hook-claude | hook-hermes   used by the hooks (JSON on stdin)
-English names work too: install, uninstall, search, work, vote, core, on, off, status.
+English names work too: install, uninstall, search, work, on, off, status.
+Every number on the map is automatic (the morning job and this file compute it): nobody types a vote.
 """
 import datetime as dt
 import glob
@@ -37,15 +36,57 @@ WIN = os.name == 'nt'
 NO_FINESTRA = 0x08000000 if WIN else 0
 TASK = os.environ.get('PSYCHE_TASK_NAME') or 'Psyche Map'
 MARCA = re.compile(r'psyche\.py\\?"\s+hook-')   # our hook command (in YAML the quote is escaped: \")
+# The 26 stars. The last two, colpa (guilt and shame) and scoperta (leisure and discovery), make sure that every
+# kind of self-defining memory found in the studies (Thorne and McLean; Singer and Blagov) has a star of its own.
 TEMI = ('identita amore metodo relazione creazione famiglia conflitto solitudine sostanza ia morte sessualita corpo '
-        'cura infanzia valore denaro casa tempo desiderio lavoro obiettivo paura ricordo').split()
-ALIAS = {'install': 'installa', 'uninstall': 'disinstalla', 'search': 'cerca', 'work': 'lavora', 'vote': 'voto',
-         'core': 'nucleo', 'on': 'accendi', 'off': 'spegni', 'status': 'stato'}
+        'cura infanzia valore denaro casa tempo desiderio lavoro obiettivo paura ricordo colpa scoperta').split()
+ALIAS = {'install': 'installa', 'uninstall': 'disinstalla', 'search': 'cerca', 'work': 'lavora', 'on': 'accendi',
+         'off': 'spegni', 'status': 'stato'}
 AUTOMATICI = ('<task-notification', '<command-', '<local-command', '<system-reminder', '[SYSTEM', '[CONTEXT',
               '[IMPORTANT', '[Background', '[OUT-OF-BAND', '[Cron', '[cron', 'Caveat:', '/')
 PIATTAFORME_NO = {'cron', 'subagent', 'kanban', 'batch', 'webhook', 'oneshot', 'curator'}
 MAX_LOTTO = 60000
 MAX_TENTATIVI = 3
+NUCLEO_MIN = 20     # memories needed before the core guesses who you would like to be (our choice, not a study)
+NUCLEO_TEMI = 3     # ... spread over at least this many stars
+NUCLEO_BASI = 7     # how many of the most central memories the AI reads for the core
+# What kind of memory a planet is. Form: one moment (less than a day), the same moment many times, or something
+# that lasted longer than a day: the three answers of the Autobiographical Memory Test (Williams and Broadbent,
+# 1986), the same levels as Conway (2000). Role, optional: the four momentous events of Pillemer (2001).
+FORME = ('singolo', 'ripetuto', 'periodo')
+RUOLI = ('inizio', 'svolta', 'conferma', 'guida')
+# The kind of every moon: the five kinds of lived detail of the Autobiographical Interview (Levine and colleagues,
+# 2002): event, place, time, perceptions, emotions and thoughts.
+CATEGORIE = ('evento', 'luogo', 'tempo', 'sensi', 'emozioni')
+# Meaning: a lesson (a rule for how to act) or an insight (something understood about oneself, others or life),
+# as McLean and Thorne (2003) coded them; a memory with one of them is «integrative» for Blagov and Singer (2004).
+SIGNIFICATI = ('lezione', 'comprensione')
+SINONIMI = {'single': 'singolo', 'specific': 'singolo', 'repeated': 'ripetuto', 'categoric': 'ripetuto',
+            'extended': 'periodo', 'period': 'periodo', 'beginning': 'inizio', 'originating': 'inizio',
+            'turning point': 'svolta', 'turning': 'svolta', 'anchor': 'conferma', 'anchoring': 'conferma',
+            'guide': 'guida', 'analogous': 'guida', 'event': 'evento', 'place': 'luogo', 'time': 'tempo',
+            'senses': 'sensi', 'perceptual': 'sensi', 'emotion': 'emozioni', 'emotions': 'emozioni',
+            'thoughts': 'emozioni', 'lesson': 'lezione', 'insight': 'comprensione'}
+# Elaboration (Pennebaker, Mayne e Francis 1997): more words of cause and of insight, as the person writes about a
+# memory again and again, go with working it through. Our own short lists, in the spirit of the LIWC categories
+# «cause» and «insight» (not the official dictionary). They run on text without accents, in lower case.
+CAUSA = re.compile(r"\b(perche|poiche|siccome|quindi|dunque|percio|causa|cause|causato|causata|motivo|motivi|"
+                   r"effetto|effetti|conseguenza|conseguenze|because|caused|causes|reason|reasons|why|effect|"
+                   r"effects|hence|therefore|thus|consequence|consequences)\b")
+CAPIRE = re.compile(r"\b(capire|capito|capisco|capivo|capendo|comprendo|comprendere|(reso|resa|rendo|rendermi|rendersi) "
+                    r"conto|accort[oaie]|accorgo|accorgermi|accorgersi|significa|significato|significava|consapevol\w*|"
+                    r"riflett\w*|scoperto|scoperta|scopro|imparato|imparata|penso|pensavo|pensato|pensare|sapevo|"
+                    r"realize[ds]?|realise[ds]?|realizing|realising|understand|understands|understood|know|knew|"
+                    r"think|thinking|thought|meaning|learned|learnt|aware|awareness|figured|insight|recogni[sz]ed?|"
+                    r"discovered|concluded)\b")
+# Centrality (Centrality of Event Scale, Berntsen e Rubin 2006, adapted): phrases that make a memory a turning
+# point or a part of who one is.
+IDENTITA = re.compile(r"\b(da allora|da quel (giorno|momento|periodo)|da li in poi|mi ha (cambiat[oa]|segnat[oa]|"
+                      r"format[oa]|fatto diventare)|sono diventat[oa]|parte di me|punto di svolta|una svolta|"
+                      r"non sono piu (lo stesso|la stessa)|ha cambiato (la mia vita|tutto)|since then|ever since|"
+                      r"from (that|then) (day|moment|on)|(changed|shaped|marked|defined) (me|my life|who i am)|"
+                      r"made me who i am|part of (me|who i am)|turning point|i became|never (been )?the same|"
+                      r"changed everything)\b")
 STOP = set('''anche ancora avere aveva avevo come cosa cose dalla dalle degli della delle dello dentro dopo essere
 fare fatto fino hanno sono stato stata stati state siamo sempre tutto tutti tutte tanto molto poco pero oppure quindi
 allora mentre sulla sulle sugli nella nelle negli adesso questo questa questi queste quello quella quelli quelle
@@ -62,11 +103,16 @@ M = {
   'cerca': 'Per i dettagli o per cercare altro: %s cerca "parole"',
   'resoconto': "Lavoro del mattino sulla mappa: %s. Se capita, diglielo in una riga.",
   'avvisi': "ATTENZIONE, dal lavoro del mattino (trattalo con delicatezza, senza allarmare):",
-  'voti': ("VOTI DA CONFERMARE: l'IA ha dato un voto a questi dettagli dei ricordi (lune). Quando il momento e' "
-           "giusto, non nel mezzo di un lavoro, chiedi in breve se vanno bene; per i voti «adesso» non dire il voto "
-           "di prima. Se conferma o corregge: %s voto ID N SEGNO FORZA [adesso] (SEGNO -1, 0 o 1; FORZA da 1 a 5). "
-           "Se non risponde, lasciali cosi'. Voti: %s"),
-  'pos': 'positivo', 'neg': 'negativo', 'neu': 'neutro', 'forza': 'forza %d su 5', 'allora': 'allora',
+  'pos': 'positivo', 'neg': 'negativo', 'allora': 'allora',
+  'verd': {'pos': 'prevale il positivo', 'neg': 'prevale il negativo', 'amb': 'ambivalente', 'neu': 'neutro'},
+  'misure': "centralita' %d punti (%d° su %d; giorni %d, legami %d, frasi di identita' %d)",
+  'elab': "elaborazione %s parole di causa e comprensione ogni 100", 'vivi': "vividezza %d%% dettagli vissuti (%d su %d)",
+  'voce': 'voce', 'nucleo_res': 'nucleo aggiornato',
+  'forma': {'singolo': 'momento singolo', 'ripetuto': 'momento ripetuto', 'periodo': 'periodo lungo'},
+  'ruolo': {'inizio': 'un inizio', 'svolta': 'una svolta', 'conferma': 'una conferma di sé', 'guida': 'una guida per oggi'},
+  'cat': {'evento': 'evento', 'luogo': 'luogo', 'tempo': 'tempo', 'sensi': 'sensi', 'emozioni': 'emozioni e pensieri'},
+  'sig_t': {'lezione': 'lezione', 'comprensione': 'comprensione'}, 'sign_n': 'significato',
+  'sign': 'significato: lezioni %d, comprensioni %d', 'cop': 'tipi di dettaglio nelle lune %d su %d',
   'adesso': 'adesso', 'lune': 'lune', 'vuota': '(vuota)', 'nessuno': 'Nessun pianeta vicino.',
   'non_inst': 'Psyche Map non e\' installata: python psyche.py installa',
   'inst_ok': "Psyche Map installata.",
@@ -82,13 +128,11 @@ M = {
   'dis_ok': "Hook e attivita' tolti. I tuoi dati restano in %s.",
   'acceso': 'Diario ACCESO: i tuoi messaggi alla IA vengono scritti nel diario.',
   'spento': 'Diario SPENTO: i messaggi non vengono scritti (i pianeti vicini arrivano lo stesso).',
-  'stato': ("Pianeti: %d  lune: %d  voti da confermare: %d  frasi nel diario: %d  diario: %s\nMappa: %s\n"
+  'stato': ("Pianeti: %d  lune: %d  frasi nel diario: %d  diario: %s\nMappa: %s\n"
             "Ultimo lavoro: %s"),
   'on': 'acceso', 'off': 'spento',
   'niente': 'niente da fare: il diario e\' vuoto',
-  'voto_ok': 'Voto salvato: %s', 'voto_err': 'Voto non salvato: %s',
-  'nucleo_ok': 'Nucleo aggiornato.',
-  'res': 'pianeti nuovi %d, aggiornati %d, lune nuove %d, voti «adesso» %d, frasi scartate %d',
+  'res': 'pianeti nuovi %d, aggiornati %d, lune nuove %d, riletture «adesso» %d, frasi scartate %d',
   'saltati': "saltate %d cose perche' non erano con le parole del diario",
   'claude_no': 'Claude Code non trovato: mettilo in config.json alla voce "claude"',
   'nucleo_label': 'NUCLEO',
@@ -100,11 +144,16 @@ M = {
   'cerca': 'For details or to look for something else: %s search "words"',
   'resoconto': 'Morning job on the map: %s. If it fits, tell them in one line.',
   'avvisi': 'ATTENTION, from the morning job (handle it gently, without alarming):',
-  'voti': ("VOTES TO CONFIRM: the AI rated these details of memories (moons). When the moment is right, not in the "
-           "middle of a task, briefly ask whether they are right; for «now» votes do not say the previous vote. If "
-           "they confirm or correct: %s vote ID N SIGN STRENGTH [now] (SIGN -1, 0 or 1; STRENGTH 1 to 5). If they "
-           "do not answer, leave them as they are. Votes: %s"),
-  'pos': 'positive', 'neg': 'negative', 'neu': 'neutral', 'forza': 'strength %d of 5', 'allora': 'then',
+  'pos': 'positive', 'neg': 'negative', 'allora': 'then',
+  'verd': {'pos': 'positive prevails', 'neg': 'negative prevails', 'amb': 'ambivalent', 'neu': 'neutral'},
+  'misure': 'centrality %d points (%d of %d; days %d, links %d, identity phrases %d)',
+  'elab': 'elaboration %s words of cause and insight per 100', 'vivi': 'vividness %d%% lived details (%d of %d)',
+  'voce': 'voice', 'nucleo_res': 'core updated',
+  'forma': {'singolo': 'single moment', 'ripetuto': 'repeated moment', 'periodo': 'extended period'},
+  'ruolo': {'inizio': 'a beginning', 'svolta': 'a turning point', 'conferma': 'an anchor', 'guida': 'a guide for today'},
+  'cat': {'evento': 'event', 'luogo': 'place', 'tempo': 'time', 'sensi': 'senses', 'emozioni': 'emotions and thoughts'},
+  'sig_t': {'lezione': 'lesson', 'comprensione': 'insight'}, 'sign_n': 'meaning',
+  'sign': 'meaning: lessons %d, insights %d', 'cop': 'kinds of detail in the moons %d of %d',
   'adesso': 'now', 'lune': 'moons', 'vuota': '(empty)', 'nessuno': 'No planet nearby.',
   'non_inst': 'Psyche Map is not installed: python psyche.py install',
   'inst_ok': 'Psyche Map installed.',
@@ -120,13 +169,11 @@ M = {
   'dis_ok': 'Hooks and task removed. Your data stays in %s.',
   'acceso': 'Diary ON: your messages to the AI are written to the diary.',
   'spento': 'Diary OFF: messages are not written (nearby planets still arrive).',
-  'stato': ('Planets: %d  moons: %d  votes to confirm: %d  sentences in the diary: %d  diary: %s\nMap: %s\n'
+  'stato': ('Planets: %d  moons: %d  sentences in the diary: %d  diary: %s\nMap: %s\n'
             'Last job: %s'),
   'on': 'on', 'off': 'off',
   'niente': 'nothing to do: the diary is empty',
-  'voto_ok': 'Vote saved: %s', 'voto_err': 'Vote not saved: %s',
-  'nucleo_ok': 'Core updated.',
-  'res': 'new planets %d, updated %d, new moons %d, «now» votes %d, sentences discarded %d',
+  'res': 'new planets %d, updated %d, new moons %d, «now» re-readings %d, sentences discarded %d',
   'saltati': 'skipped %d items because they were not in the words of the diary',
   'claude_no': 'Claude Code not found: put its path in config.json under "claude"',
   'nucleo_label': 'CORE',
@@ -236,25 +283,119 @@ def clamp(x, a, b):
     return max(a, min(b, x))
 
 
-def val_luna(l):
-    if not isinstance(l, dict):
+SCALA = 4   # each count goes from 0 (not at all) to 4 (extremely), like the Evaluative Space Grid (Larsen and colleagues, 2009)
+
+
+def pn(x):
+    """The two counts of a moon or of one of its «now» re-readings: (positive, negative), each 0-SCALA, or None.
+    Never one number with a sign: positive and negative are kept apart (Cacioppo e Berntson 1994), so a detail
+    that is sweet and painful at once stays visible. Old votes become counts (sign +1 strength 5 -> 4, 0)."""
+    if not isinstance(x, dict):
         return None
-    s = l.get('segno')
+    p, n = x.get('pos'), x.get('neg')
+    if isinstance(p, (int, float)) or isinstance(n, (int, float)):
+        return (clamp(int(round(abs(p or 0))), 0, SCALA), clamp(int(round(abs(n or 0))), 0, SCALA))
+    s = x.get('segno')
     if isinstance(s, (int, float)):
-        s = 1 if s > 0 else -1 if s < 0 else 0
-        return 0 if s == 0 else s * clamp(int(round(l.get('forza') or 3)), 1, 5) * 2
-    v = l.get('valore')
-    return clamp(v, -10, 10) if isinstance(v, (int, float)) else None
+        f = int(round(clamp(x.get('forza') or 3, 1, 5) * SCALA / 5.0))
+        return (f, 0) if s > 0 else (0, f) if s < 0 else (0, 0)
+    v = x.get('valore')
+    if isinstance(v, (int, float)):
+        f = int(round(clamp(abs(v), 0, 10) * SCALA / 10.0))
+        return (f, 0) if v > 0 else (0, f)
+    return None
 
 
-def fmt_val(v):
-    return '?' if v is None else ('+%g' % v if v > 0 else '%g' % v)
+def pn_adesso(l):
+    ad = [a for a in l.get('adesso') or [] if pn(a)] if isinstance(l, dict) else []
+    return pn(ad[-1]) if ad else None
 
 
-def descrivi_voto(L, s, f):
-    if s is None:
-        return '?'
-    return (L['pos'] if s > 0 else L['neg'] if s < 0 else L['neu']) + ('' if not s else ', ' + L['forza'] % clamp(int(f or 3), 1, 5))
+def conti(lune, adesso=False):
+    """A planet's two counts: the sums of its moons' counts (with adesso=True each moon's latest re-reading)."""
+    p = n = k = 0
+    for l in lune or []:
+        v = (pn_adesso(l) or pn(l)) if adesso else pn(l)
+        if v:
+            p, n, k = p + v[0], n + v[1], k + 1
+    return (p, n) if k else None
+
+
+def verdetto(p, n):
+    """neu when both are about zero; amb when the weaker count is more than a third of the stronger one, that is
+    Griffin's ambivalence index (P+N)/2 - |P-N| above zero (Thompson, Zanna e Griffin 1995); else what prevails."""
+    if p + n < 0.5:
+        return 'neu'
+    if min(p, n) * 3 > max(p, n):
+        return 'amb'
+    return 'pos' if p > n else 'neg'
+
+
+def fmt_pn(v):
+    return '?' if not v else '+%g/-%g' % (v[0], v[1])
+
+
+def migra(d):
+    """Old votes (sign and strength, or the first -10..+10 number) become the two counts: nothing is lost."""
+    for n in d['nodes'].values():
+        for l in (n.get('lune') or []) if isinstance(n, dict) else []:
+            if not isinstance(l, dict):
+                continue
+            for x in [l] + [a for a in l.get('adesso') or [] if isinstance(a, dict)]:
+                v = pn(x)
+                if v and 'pos' not in x and 'neg' not in x:
+                    x['pos'], x['neg'] = v
+                for k in ('segno', 'forza', 'valore', 'provvisorio'):
+                    x.pop(k, None)
+
+
+def conta_parole(t):
+    """Counts on the person's own words: words, words of cause and of insight (Pennebaker), identity phrases."""
+    a = unicodedata.normalize('NFKD', str(t or '').replace('’', "'")).encode('ascii', 'ignore').decode('ascii')
+    a = ' '.join(a.lower().replace("'", ' ').split())
+    return {'parole': len(re.findall(r'[a-z0-9]+', a)), 'causa': len(CAUSA.findall(a)),
+            'capire': len(CAPIRE.findall(a)), 'identita': len(IDENTITA.findall(a))}
+
+
+def misure(d):
+    """The automatic measures of every memory, written in node['misure'] for the page and recomputed at every job.
+    Returns the memories from the most central down."""
+    nodi = {i: n for i, n in d['nodes'].items() if isinstance(n, dict)}
+    punti = {}
+    for i, n in nodi.items():
+        men = [m for m in n.get('menzioni') or [] if isinstance(m, dict)]
+        giorni = {str(m.get('data'))[:10] for m in men if m.get('data')}
+        if n.get('createdAt'):
+            giorni.add(str(n['createdAt'])[:10])
+        legami = len({x for x in n.get('linkedTo') or [] if x in nodi and x != i}) + len(n.get('temiAnche') or [])
+        ident = sum(int(m.get('identita') or 0) for m in men)
+        # centrality, adapted: how many days it came back, its links, its identity phrases, added up without
+        # weights (the scale itself is a plain sum of its items)
+        mi: dict = {'centralita': {'ritorni': len(giorni), 'legami': legami, 'identita': ident,
+                                   'punti': len(giorni) + legami + ident}}
+        q = [round(100.0 * ((m.get('causa') or 0) + (m.get('capire') or 0)) / m['parole'], 1)
+             for m in men if (m.get('parole') or 0) >= 20]   # on fewer words the share means little
+        if q:
+            t = None if len(q) < 2 else 'su' if q[-1] - q[0] >= 1 else 'giu' if q[0] - q[-1] >= 1 else 'stabile'
+            mi['elaborazione'] = {'prima': q[0], 'ultima': q[-1], 'volte': len(q), 'tendenza': t}
+        a = sum(int(m.get('interni') or 0) for m in men)
+        b = sum(int(m.get('esterni') or 0) for m in men)
+        if a + b >= 3:
+            mi['vividezza'] = {'interni': a, 'esterni': b, 'quota': int(round(100.0 * a / (a + b)))}
+        # meaning: the lessons and insights the person said in words (McLean and Thorne 2003)
+        sg = [x.get('tipo') for x in n.get('significati') or [] if isinstance(x, dict) and x.get('tipo') in SIGNIFICATI]
+        if sg:
+            mi['significato'] = {'lezioni': sg.count('lezione'), 'comprensioni': sg.count('comprensione')}
+        # coverage: how many of the five kinds of lived detail (Levine and colleagues 2002) the moons touch
+        cat = [l.get('categoria') for l in n.get('lune') or [] if isinstance(l, dict) and l.get('categoria') in CATEGORIE]
+        if cat:
+            mi['copertura'] = {'tipi': len(set(cat)), 'su': len(CATEGORIE), 'conti': {c: cat.count(c) for c in CATEGORIE}}
+        n['misure'] = mi
+        punti[i] = mi['centralita']['punti']
+    ordine = sorted(punti, key=lambda i: (-punti[i], str(nodi[i].get('createdAt') or '')))
+    for k, i in enumerate(ordine):
+        nodi[i]['misure']['centralita'].update(posto=k + 1, su=len(ordine))
+    return ordine
 
 
 # ------------------------------------------------------------------------------------------------ nearest planets
@@ -296,7 +437,7 @@ def riga_breve(i, n, L):
                                   ', ' + n['accadutoIl'] if n.get('accadutoIl') else '', corto(n.get('text'), 140))
     lune = [l for l in n.get('lune') or [] if isinstance(l, dict)]
     if lune:
-        s += ' %s: %s' % (L['lune'], ', '.join('%s %s' % (l.get('word') or corto(l.get('text'), 20), fmt_val(val_luna(l)))
+        s += ' %s: %s' % (L['lune'], ', '.join('%s %s' % (l.get('word') or corto(l.get('text'), 20), fmt_pn(pn(l)))
                                               for l in lune[:6]))
     return s
 
@@ -307,21 +448,6 @@ def testo_msg(m):
     if isinstance(m, list):
         return ' '.join(p.get('text', '') for p in m if isinstance(p, dict) and p.get('type') == 'text')
     return str(m or '')
-
-
-def provvisori(d):
-    out = []
-    for i, n in (d.get('nodes') or {}).items():
-        for j, l in enumerate(n.get('lune') or [] if isinstance(n, dict) else []):
-            if not isinstance(l, dict):
-                continue
-            if l.get('provvisorio'):
-                out.append(('%s|%d|p' % (i, j), i, j, False, n, l, l.get('segno'), l.get('forza')))
-            ad = [a for a in l.get('adesso') or [] if isinstance(a, dict)]
-            if ad and ad[-1].get('provvisorio'):
-                out.append(('%s|%d|a|%s' % (i, j, ad[-1].get('data')), i, j, True, n, l, ad[-1].get('segno'),
-                            ad[-1].get('forza')))
-    return out
 
 
 def contesto(cfg, msg, fonte):
@@ -343,18 +469,6 @@ def contesto(cfg, msg, fonte):
         if vic:
             parti.append(L['vicini'] + ' ' + '; '.join(riga_breve(i, d['nodes'][i], L) for i in vic) + '. '
                          + L['cerca'] % comando_base())
-    oggi = dt.date.today().isoformat()
-    if st.get('voti_giorno') != oggi:
-        chiesti = st.get('chiesti') or []
-        pv = [p for p in provvisori(d) if p[0] not in chiesti][:6]
-        if pv:
-            voci = ['%s › %s (%s, %s): %s [%s %d]' % (n.get('word') or i, l.get('word') or corto(l.get('text'), 24),
-                                                     L['adesso'] if ad else L['allora'], corto(l.get('text'), 60),
-                                                     descrivi_voto(L, s, f), i, j)
-                    for k, i, j, ad, n, l, s, f in pv]
-            parti.append(L['voti'] % (comando_base(), '; '.join(voci)))
-            st['chiesti'] = (chiesti + [p[0] for p in pv])[-500:]
-            st['voti_giorno'] = oggi
     salva_json(os.path.join(c, 'stato.json'), st)
     return L['intesta'] + '\n' + '\n'.join(parti) if parti else ''
 
@@ -426,21 +540,89 @@ def tema(x):
     return x if x in TEMI else None
 
 
-def luna_ok(l, corpo, ora):
-    if not isinstance(l, dict):
-        return None
-    t, s = str(l.get('text') or '').strip()[:300], l.get('segno')
-    if not t or s not in (-1, 0, 1) or not dentro(t, corpo):
-        return None
+def scelta(x, valori):
+    """One of the allowed keys (also given by its English name), or None."""
+    x = unicodedata.normalize('NFKD', str(x or '')).encode('ascii', 'ignore').decode('ascii').lower().strip()
+    x = SINONIMI.get(x, x)
+    return x if x in valori else None
+
+
+def conto(x):
     try:
-        f = clamp(int(l.get('forza') or 3), 1, 5)
+        return clamp(abs(int(x or 0)), 0, SCALA)
     except (TypeError, ValueError):
-        f = 3
-    out = {'text': t, 'segno': s, 'forza': f, 'provvisorio': True, 'createdAt': ora}
+        return None
+
+
+def luna_ok(l, corpo, ora):
+    if not isinstance(l, dict) or ('pos' not in l and 'neg' not in l):
+        return None
+    t, p, n = str(l.get('text') or '').strip()[:300], conto(l.get('pos')), conto(l.get('neg'))
+    if not t or p is None or n is None or not dentro(t, corpo):
+        return None
+    out = {'text': t, 'pos': p, 'neg': n, 'createdAt': ora}
     w = re.sub(r'\s+', '', str(l.get('word') or '')).upper()[:14]
     if w:
         out['word'] = w
+    c = scelta(l.get('categoria'), CATEGORIE)
+    if c:
+        out['categoria'] = c
     return out
+
+
+def voce_ok(v):
+    """The third level of a memory: an idea of a real author on the same theme, in the AI's words, with the work
+    and its year (no year, no voice: it makes the source checkable)."""
+    if not isinstance(v, dict):
+        return None
+    v = {k: ' '.join(str(v.get(k) or '').split())[:420] for k in ('autore', 'opera', 'idea')}
+    return v if all(v.values()) and len(v['autore']) <= 80 and re.search(r'\d', v['opera']) else None
+
+
+def dettagli_ok(x):
+    """Details counted by the AI with the categories of the Autobiographical Interview (Levine and colleagues 2002):
+    internal = lived (event, place, time, perceptions, feelings then), external = comments, general facts."""
+    try:
+        return clamp(int(x.get('interni')), 0, 300), clamp(int(x.get('esterni')), 0, 300)
+    except (TypeError, ValueError, AttributeError):
+        return None
+
+
+def detto(s):
+    """True when the AI gave a meaning with words: if it then fails the check, it counts as skipped."""
+    return isinstance(s, dict) and bool(str(s.get('text') or '').strip())
+
+
+def significato_ok(s, corpo, ora):
+    """A lesson or an insight, kept only with the person's own words (checked like the moons)."""
+    if not isinstance(s, dict):
+        return None
+    k, t = scelta(s.get('tipo'), SIGNIFICATI), str(s.get('text') or '').strip()[:300]
+    return {'tipo': k, 'text': t, 'data': ora[:10]} if k and t and dentro(t, corpo) else None
+
+
+def menziona(n, corpo, det, ora):
+    """One more day the memory came up in the diary: the counts on the words written about it (a second job on
+    the same day adds to that day)."""
+    m = dict(conta_parole(corpo), data=ora[:10])
+    if det:
+        m['interni'], m['esterni'] = det
+    men = [x for x in n.get('menzioni') or [] if isinstance(x, dict)]
+    if men and men[-1].get('data') == m['data']:
+        for k, v in m.items():
+            if k != 'data':
+                men[-1][k] = int(men[-1].get(k) or 0) + v
+    else:
+        men = men[-59:] + [m]
+    n['menzioni'] = men
+
+
+def nucleo_ok(x, basi):
+    if not isinstance(x, dict):
+        return None
+    t = ' '.join(str(x.get('ipotesi') or '').split())[:900]
+    b = [i for i in x.get('basi') or [] if i in basi]
+    return {'ipotesi': t, 'basi': b} if len(t) >= 40 and len(b) >= 2 else None
 
 
 def mecc_ok(m):
@@ -490,6 +672,15 @@ def applica(d, r, voci, ora):
             n['weight'] = 2
         if str(p.get('accadutoIl') or '').strip():
             n['accadutoIl'] = str(p['accadutoIl']).strip()[:60]
+        for k, valori in (('forma', FORME), ('ruolo', RUOLI)):
+            v = scelta(p.get(k), valori)
+            if v:
+                n[k] = v
+        sg = significato_ok(p.get('significato'), corpo, ora)
+        if sg:
+            n['significati'] = [sg]
+        elif detto(p.get('significato')):
+            rep['saltati'] += 1
         ta = [t for t in (tema(x) for x in p.get('temiAnche') or []) if t and t != th][:2]
         if ta:
             n['temiAnche'] = ta
@@ -499,8 +690,12 @@ def applica(d, r, voci, ora):
         mc = [x for x in (mecc_ok(m) for m in p.get('meccanismi') or []) if x][:2]
         if mc:
             n['meccanismi'] = mc
+        vo = voce_ok(p.get('voce'))
+        if vo:
+            n['voce'] = vo
         if lune:
             n['lune'] = lune
+        menziona(n, corpo, dettagli_ok(p.get('dettagli')), ora)
         nodi[nid] = n
         rif[str(p.get('rif') or word)] = nid
         rep['nuovi'] += 1
@@ -515,54 +710,63 @@ def applica(d, r, voci, ora):
         if not ids:
             rep['saltati'] += 1
             continue
-        n, fatto = nodi[u['id']], False
+        n = nodi[u['id']]   # the memory came back: that alone counts (centrality, elaboration)
+        menziona(n, corpo, dettagli_ok(u.get('dettagli')), ora)
         lune = [x for x in (luna_ok(l, corpo, ora) for l in u.get('lune') or []) if x]
         rep['saltati'] += len(u.get('lune') or []) - len(lune)
         if lune:
             n['lune'] = [l for l in n.get('lune') or []] + lune
             rep['lune'] += len(lune)
-            fatto = True
         for a in u.get('adesso') or []:
             try:
-                j, s, f = int(a.get('luna')), a.get('segno'), clamp(int(a.get('forza') or 3), 1, 5)
+                j, p, q = int(a.get('luna')), conto(a.get('pos')), conto(a.get('neg'))
             except (TypeError, ValueError, AttributeError):
                 rep['saltati'] += 1
                 continue
             ll = n.get('lune') or []
-            if not (0 <= j < len(ll)) or s not in (-1, 0, 1):
+            if not (0 <= j < len(ll)) or p is None or q is None or ('pos' not in a and 'neg' not in a):
                 rep['saltati'] += 1
                 continue
             if not isinstance(ll[j], dict):
                 ll[j] = {'text': str(ll[j])}
-            v = {'data': ora, 'segno': s, 'forza': f, 'provvisorio': True}
+            v = {'data': ora, 'pos': p, 'neg': q}
             if str(a.get('nota') or '').strip():
                 v['nota'] = str(a['nota']).strip()[:300]
             ll[j].setdefault('adesso', []).append(v)
             rep['adesso'] += 1
-            fatto = True
+        if not n.get('voce'):
+            vo = voce_ok(u.get('voce'))
+            if vo:
+                n['voce'] = vo
         tc = [str(x).strip()[:1500] for x in u.get('taccuino') or [] if str(x).strip()]
         if tc:
             vecchio = n.get('taccuino')
             tutto = (vecchio if isinstance(vecchio, list) else [vecchio] if vecchio else []) + tc
             n['taccuino'] = tutto if len(tutto) <= 6 else tutto[:1] + tutto[-5:]   # the first note and the latest ones
-            fatto = True
         mc = [x for x in (mecc_ok(m) for m in u.get('meccanismi') or []) if x]
         nomi = {str(m.get('nome', '')).lower() for m in n.get('meccanismi') or [] if isinstance(m, dict)}
         mc = [m for m in mc if m['nome'].lower() not in nomi]
         if mc:
             n['meccanismi'] = (n.get('meccanismi') or []) + mc
-            fatto = True
         ta = [t for t in (tema(x) for x in u.get('temiAnche') or []) if t and t != n.get('theme')]
         ta = [t for t in ta if t not in (n.get('temiAnche') or [])]
         if ta:
             n['temiAnche'] = ((n.get('temiAnche') or []) + ta)[:3]
-            fatto = True
         if str(u.get('accadutoIl') or '').strip() and not n.get('accadutoIl'):
             n['accadutoIl'] = str(u['accadutoIl']).strip()[:60]
-            fatto = True
-        if fatto:
-            rep['aggiornati'] += 1
-            usa(ids, u['id'])
+        for k, valori in (('forma', FORME), ('ruolo', RUOLI)):   # only when the planet has none yet
+            v = scelta(u.get(k), valori)
+            if v and not n.get(k):
+                n[k] = v
+        sg = significato_ok(u.get('significato'), corpo, ora)
+        if sg:
+            vs = [x for x in n.get('significati') or [] if isinstance(x, dict)]
+            if norm_testo(sg['text']) not in {norm_testo(x.get('text')) for x in vs}:
+                n['significati'] = (vs + [sg])[-6:]
+        elif detto(u.get('significato')):
+            rep['saltati'] += 1
+        rep['aggiornati'] += 1
+        usa(ids, u['id'])
 
     for c in r.get('legami') or []:
         if isinstance(c, (list, tuple)) and len(c) == 2:
@@ -582,13 +786,17 @@ def riassunto_mappa(d, testo_lotto, L):
     for i in ids:
         n = nodi[i]
         lune = [l for l in n.get('lune') or []]
-        s = '- id %s | %s | %s%s%s | «%s»' % (i, n.get('word') or '?', n.get('theme') or '?',
-                                            ' +' + ','.join(n['temiAnche']) if n.get('temiAnche') else '',
-                                            ' | ' + n['accadutoIl'] if n.get('accadutoIl') else '', corto(n.get('text'), 220))
+        fr = '/'.join(x for x in (n.get('forma'), n.get('ruolo')) if x)
+        s = '- id %s | %s | %s%s%s%s | «%s»' % (i, n.get('word') or '?', n.get('theme') or '?',
+                                              ' +' + ','.join(n['temiAnche']) if n.get('temiAnche') else '',
+                                              ' | ' + n['accadutoIl'] if n.get('accadutoIl') else '',
+                                              ' | ' + fr if fr else '', corto(n.get('text'), 220))
         if lune:
-            s += ' | %s: ' % L['lune'] + '; '.join('%d %s «%s» %s' % (j, (l.get('word') or '') if isinstance(l, dict) else '',
-                                                                   corto(l.get('text') if isinstance(l, dict) else l, 70),
-                                                                   fmt_val(val_luna(l)))
+            s += ' | %s: ' % L['lune'] + '; '.join('%d %s%s «%s» %s%s' % (j, (l.get('word') or '') if isinstance(l, dict) else '',
+                                                                     '[%s]' % l['categoria'] if isinstance(l, dict) and l.get('categoria') else '',
+                                                                     corto(l.get('text') if isinstance(l, dict) else l, 70),
+                                                                     fmt_pn(pn(l)), ' %s %s' % (L['adesso'], fmt_pn(pn_adesso(l)))
+                                                                     if pn_adesso(l) else '')
                                                  for j, l in enumerate(lune))
         tc = n.get('taccuino')
         tc = tc if isinstance(tc, list) else [tc] if tc else []
@@ -597,8 +805,37 @@ def riassunto_mappa(d, testo_lotto, L):
         mc = [str(m.get('nome')) for m in n.get('meccanismi') or [] if isinstance(m, dict) and m.get('nome')]
         if mc:
             s += ' | meccanismi: ' + ', '.join(mc)
+        if isinstance(n.get('voce'), dict):
+            s += ' | %s: %s' % (L['voce'], n['voce'].get('autore'))
+        sg = [str(x.get('tipo')) for x in n.get('significati') or [] if isinstance(x, dict)]
+        if sg:
+            s += ' | %s: %s' % (L['sign_n'], ', '.join(sg))
         righe.append(s)
     return '\n'.join(righe) or L['vuota']
+
+
+def per_nucleo(d, ordine, L):
+    """The prompt section for the core: the most central memories, or why it is not time yet."""
+    nodi, nu = d['nodes'], d['core'].get('nucleo') if isinstance(d['core'].get('nucleo'), dict) else {}
+    temi = {n.get('theme') for n in nodi.values() if isinstance(n, dict) and n.get('theme')}
+    if len(nodi) < NUCLEO_MIN or len(temi) < NUCLEO_TEMI:
+        return [], 'NO (%d/%d, %d/%d)' % (len(nodi), NUCLEO_MIN, len(temi), NUCLEO_TEMI)
+    basi = ordine[:NUCLEO_BASI]
+    righe = []
+    for i in basi:
+        n = nodi[i]
+        tc = n.get('taccuino')
+        tc = tc if isinstance(tc, list) else [tc] if tc else []
+        ce = n['misure']['centralita']
+        sg = ''.join(' | %s: «%s»' % (L['sign_n'], corto(x.get('text'), 160))
+                     for x in (n.get('significati') or [])[-2:] if isinstance(x, dict))
+        righe.append('- id %s | %s | %s | %s | «%s»%s%s' % (
+            i, n.get('word') or '?', n.get('theme') or '?',
+            L['misure'] % tuple(ce[k] for k in ('punti', 'posto', 'su', 'ritorni', 'legami', 'identita')),
+            corto(n.get('text'), 300), ' | taccuino: «%s»' % corto(tc[-1], 200) if tc else '', sg))
+    prima = (nu or {}).get('ipotesi')
+    return basi, ('SI / YES\n' + ('(%s) %s\n' % ('ipotesi attuale / current hypothesis', prima) if prima else '')
+                  + '\n'.join(righe))
 
 
 def estrai_json(t):
@@ -636,9 +873,10 @@ def lavora(cfg):
         resto = voci[len(lotto):]
         etichette = {'d%d' % (k + 1): v for k, v in enumerate(lotto)}
         d = leggi_mappa(c)
+        migra(d)
+        ordine = misure(d)
         istr = open(os.path.join(QUI, 'istruzioni-it.md' if lingua == 'it' else 'instructions-en.md'), encoding='utf-8').read()
-        nucleo = ' '.join('%s: %s' % (v.get('label', k), v.get('description', '')) for k, v in d['core'].items()
-                          if isinstance(v, dict)) or L['vuota']
+        basi, nucleo = per_nucleo(d, ordine, L)
         testo_lotto = ' '.join(v['testo'] for v in lotto)
         prompt = '%s\n\n## NUCLEO / CORE\n%s\n\n## MAPPA ATTUALE / CURRENT MAP\n%s\n\n## DIARIO / DIARY\n%s\n' % (
             istr, nucleo, riassunto_mappa(d, testo_lotto, L),
@@ -661,6 +899,12 @@ def lavora(cfg):
         proposta = estrai_json(esito.get('result'))
         ora = ora_iso()
         rep = applica(d, proposta, etichette, ora)
+        nu = nucleo_ok(proposta.get('nucleo'), basi)
+        if nu:
+            core = d['core'].setdefault('nucleo', {})
+            core.update(nu, label=core.get('label') or L['nucleo_label'], updatedAt=ora)
+            core.pop('description', None)
+        misure(d)
         scartate = {x for x in proposta.get('scartate') or [] if x in etichette} - set(rep['usate'])
         scrivi_mappa(c, d)
         mese = os.path.join(c, 'archivio', 'diario-%s.jsonl' % ora[:7])
@@ -676,6 +920,8 @@ def lavora(cfg):
         aggiungi_jsonl(dia, rimaste + resto)
         os.remove(inl)
         riga = L['res'] % (rep['nuovi'], rep['aggiornati'], rep['lune'], rep['adesso'], len(scartate))
+        if nu:
+            riga += '; ' + L['nucleo_res']
         if rep['saltati']:
             riga += '; ' + L['saltati'] % rep['saltati']
         st = carica_json(os.path.join(c, 'stato.json'), {}) or {}
@@ -832,7 +1078,7 @@ def installa(args):
     if os.path.normcase(os.path.abspath(pagina)) != os.path.normcase(os.path.abspath(sorgente)):
         shutil.copy2(sorgente, pagina)
     if not os.path.exists(os.path.join(cartella, 'psyche-dati.js')):
-        scrivi_mappa(cartella, {'core': {'nucleo': {'label': L['nucleo_label'], 'description': '', 'updatedAt': ora_iso()}},
+        scrivi_mappa(cartella, {'core': {'nucleo': {'label': L['nucleo_label'], 'updatedAt': ora_iso()}},
                                 'nodes': {}})
     vecchio = cfg_carica() or {}
     cfg = dict(vecchio, lingua=lingua, cartella=cartella, ora=ora, modello=opzione(args, '--modello') or
@@ -873,8 +1119,35 @@ def disinstalla(cfg):
 
 # ------------------------------------------------------------------------------------------------ small commands
 
+def misure_riga(n, L):
+    """One line with a memory's automatic numbers, for «cerca»."""
+    out = [x for x in (L['forma'].get(n.get('forma')), L['ruolo'].get(n.get('ruolo'))) if x]
+    out = [', '.join(out)] if out else []
+    cp = conti(n.get('lune'))
+    if cp:
+        ca = conti(n.get('lune'), True) or cp
+        out.append('%s %s (%s)' % (L['allora'], fmt_pn(cp), L['verd'][verdetto(*cp)])
+                   + ('' if ca == cp else ', %s %s (%s)' % (L['adesso'], fmt_pn(ca), L['verd'][verdetto(*ca)])))
+    mi = n.get('misure') or {}
+    if mi.get('centralita'):
+        out.append(L['misure'] % tuple(mi['centralita'].get(k, 0) for k in
+                                       ('punti', 'posto', 'su', 'ritorni', 'legami', 'identita')))
+    if mi.get('elaborazione'):
+        out.append(L['elab'] % mi['elaborazione'].get('ultima'))
+    if mi.get('vividezza'):
+        v = mi['vividezza']
+        out.append(L['vivi'] % (v['quota'], v['interni'], v['interni'] + v['esterni']))
+    if mi.get('copertura'):
+        out.append(L['cop'] % (mi['copertura'].get('tipi', 0), mi['copertura'].get('su', len(CATEGORIE))))
+    if mi.get('significato'):
+        out.append(L['sign'] % (mi['significato'].get('lezioni', 0), mi['significato'].get('comprensioni', 0)))
+    return ' | '.join(out)
+
+
 def cerca(cfg, testo):
     L, d = lingua_cfg(cfg), leggi_mappa(cfg['cartella'])
+    migra(d)
+    misure(d)
     vic = vicini(d, testo, 5)
     if not vic:
         print(L['nessuno']); return 0
@@ -890,43 +1163,23 @@ def cerca(cfg, testo):
         for m in n.get('meccanismi') or []:
             if isinstance(m, dict):
                 print('   * %s: %s (%s)' % (m.get('nome'), m.get('estremo'), m.get('fonte')))
+        vo = n.get('voce')
+        if isinstance(vo, dict):
+            print('   » %s, %s: %s' % (vo.get('autore'), vo.get('opera'), vo.get('idea')))
+        for x in n.get('significati') or []:
+            if isinstance(x, dict):
+                print('   ! %s: «%s»' % (L['sig_t'].get(x.get('tipo'), x.get('tipo')), x.get('text')))
+        mr = misure_riga(n, L)
+        if mr:
+            print('   # ' + mr)
         for j, l in enumerate(n.get('lune') or []):
             if not isinstance(l, dict):
                 print('   %d. %s' % (j, l)); continue
-            ad = ['%s %s' % (str(a.get('data', ''))[:10], descrivi_voto(L, a.get('segno'), a.get('forza')))
+            ad = ['%s %s' % (str(a.get('data', ''))[:10], fmt_pn(pn(a)))
                   for a in l.get('adesso') or [] if isinstance(a, dict)]
-            print('   %d. %s «%s» %s: %s%s%s' % (j, l.get('word') or '', l.get('text'), L['allora'],
-                                              descrivi_voto(L, l.get('segno'), l.get('forza')) if l.get('segno') is not None
-                                              else fmt_val(val_luna(l)), ' *' if l.get('provvisorio') else '',
-                                              ('  ' + L['adesso'] + ': ' + '; '.join(ad)) if ad else ''))
-    return 0
-
-
-def voto(cfg, a):
-    L, c = lingua_cfg(cfg), cfg['cartella']
-    d = leggi_mappa(c)
-    try:
-        nid, j = a[0], int(a[1])
-        s = {'+': 1, '-': -1, '+1': 1, '1': 1, '-1': -1, '0': 0}[a[2]]
-        f = int(a[3])
-        if not 1 <= f <= 5:
-            raise ValueError('forza 1-5')
-        l = d['nodes'][nid]['lune'][j]
-        if not isinstance(l, dict):
-            l = d['nodes'][nid]['lune'][j] = {'text': str(l)}
-    except (IndexError, KeyError, ValueError, TypeError) as e:
-        print(L['voto_err'] % ('%s %s' % (type(e).__name__, e))); return 1
-    if len(a) > 4 and a[4] in ('adesso', 'now'):
-        ad = [x for x in l.get('adesso') or [] if isinstance(x, dict)]
-        if not ad:
-            print(L['voto_err'] % 'no «adesso»'); return 1
-        ad[-1].update(segno=s, forza=f, provvisorio=False)
-    else:
-        l.update(segno=s, forza=f, provvisorio=False)
-        l.pop('valore', None)
-    scrivi_mappa(c, d)
-    print(L['voto_ok'] % ('%s › %s: %s' % (d['nodes'][nid].get('word'), l.get('word') or corto(l.get('text'), 30),
-                                          descrivi_voto(L, s, f))))
+            print('   %d. %s%s «%s» %s: %s%s' % (j, l.get('word') or '', ' [%s]' % L['cat'].get(l['categoria'], l['categoria'])
+                                            if l.get('categoria') else '', l.get('text'), L['allora'], fmt_pn(pn(l)),
+                                          ('  ' + L['adesso'] + ': ' + '; '.join(ad)) if ad else ''))
     return 0
 
 
@@ -935,7 +1188,7 @@ def stato(cfg):
     d = leggi_mappa(c)
     lune = sum(len(n.get('lune') or []) for n in d['nodes'].values() if isinstance(n, dict))
     st = carica_json(os.path.join(c, 'stato.json'), {}) or {}
-    print(L['stato'] % (len(d['nodes']), lune, len(provvisori(d)), len(leggi_jsonl(os.path.join(c, 'diario.jsonl'))),
+    print(L['stato'] % (len(d['nodes']), lune, len(leggi_jsonl(os.path.join(c, 'diario.jsonl'))),
                         L['off'] if os.path.exists(os.path.join(c, 'SPENTO')) else L['on'],
                         os.path.join(c, 'psyche-%s.html' % cfg.get('lingua', 'en')), st.get('ultimo_lavoro') or '-'))
     return 0
@@ -964,8 +1217,6 @@ def main(argv):
         return lavora(cfg)
     if cmd == 'cerca':
         return cerca(cfg, ' '.join(args))
-    if cmd == 'voto':
-        return voto(cfg, args)
     if cmd == 'stato':
         return stato(cfg)
     if cmd in ('accendi', 'spegni'):
@@ -975,12 +1226,6 @@ def main(argv):
         elif os.path.exists(p):
             os.remove(p)
         print(L['acceso'] if cmd == 'accendi' else L['spento']); return 0
-    if cmd == 'nucleo':
-        d = leggi_mappa(c)
-        n = d['core'].setdefault('nucleo', {'label': L['nucleo_label']})
-        n.update(description=' '.join(args)[:2000], updatedAt=ora_iso())
-        scrivi_mappa(c, d)
-        print(L['nucleo_ok']); return 0
     print(__doc__); return 1
 
 

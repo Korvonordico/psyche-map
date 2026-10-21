@@ -18,26 +18,53 @@ The structure follows the **Self-Memory System** by Conway and Pleydell-Pearce (
 
 | On the map | In Conway's model | What it holds |
 |---|---|---|
-| Core | working self | who you are today, your goals |
-| Stars | lifetime periods / themes | love, family, fear, work... 24 themes, fixed: they never close and can grow again years later |
+| Core | working self | your goals; as a game, a guess at who you would like to be |
+| Stars | lifetime periods / themes | love, family, fear, work... 26 themes, fixed: they never close and can grow again years later |
 | Planets | general events | one memory or situation; two dates: when it happened and when you told it |
 | Moons | event-specific knowledge | a smell, a sentence, an image: the details |
 
 A planet orbits one star; if it also belongs to another theme, a thin thread links it to that second star.
 
-**Only moons are rated**, because a detail is the only thing you can really feel again. Each moon has a sign
-(negative, neutral, positive) and a strength from 1 to 5, *as you felt it then* (valence and arousal: Russell, 1980;
-the SAM scale: Bradley and Lang, 1994). When you come back to a memory later, the AI adds a *now* vote, so you can
-see how the feeling changed: negative feelings usually fade faster than positive ones (the Fading Affect Bias).
-Planets show the average of their moons and the trend of the *now* votes, never a single number.
+**Only moons are counted**, because a detail is the only thing you can really feel again. Each moon has two
+separate counts, *as you felt it then*: how positive and how negative, each from 0 (not at all) to 4 (extremely). Two
+counts and not one signed number, because a detail can be lovely and painful at the same time (Cacioppo and
+Berntson, 1994; the 0-4 grid is the one by Larsen and colleagues, 2009). When you come back to a memory later, the AI
+adds a *now* re-reading, so you can see how the feeling changed: negative feelings usually fade faster than positive
+ones (the Fading Affect Bias). Planets, stars and the whole map add up the counts of their moons, never an average,
+and say what prevails: the positive, the negative, both (ambivalent) or neither (neutral).
 
-The AI gives the votes by itself and asks you in chat whether they are right. If you don't answer, they stay.
+The AI gives the counts by reading your words: nobody types them in.
 
 Each planet also has a **psychologist's notebook**: a few lines in the third person about what happened and what it
 left, and the recognised psychological mechanisms it touches (avoidance, rumination, loss of trust...), each with
 what it becomes when it is extreme and lasting and the official source (DSM-5-TR, ICD-11). These are hypotheses
 to help you understand yourself, never diagnoses: a disorder needs a clinician, several signs together, a set
 duration and real harm to everyday life.
+
+Next to the notebook there can be **an author's voice**: a real author, the work with its year and an idea summed up
+by the AI that helps to read the memory. It is not a quotation: if it interests you, check the work.
+
+Each planet then has some **automatic measures**, never typed in by hand either; the panel shows the source and the
+limit of each:
+
+- **centrality**: how much a memory weighs on who you are. It counts the days you talked about it, its links to
+  other memories and identity phrases such as "ever since" (Centrality of Event Scale, Berntsen and Rubin, 2006,
+  adapted);
+- **elaboration**: how many words of cause and insight you use when you talk about it, and whether they grow or
+  shrink from the first time to the last (Pennebaker, 1997);
+- **vividness**: how many of the details you told are lived and how many are comments (Autobiographical Interview,
+  Levine and colleagues, 2002). The AI sorts them, the program does the sum;
+- **kind of memory**: a single moment, a repeated one or a period (Williams and Broadbent, 1986), and its role,
+  for example a beginning or a turning point (Pillemer, 2001);
+- **kinds of detail**: how many of the five kinds (event, place, time, senses, emotions) the moons touch (Levine
+  and colleagues, 2002);
+- **meaning**: the lessons and insights you put in your own words (McLean and Thorne, 2003; Blagov and Singer,
+  2004).
+
+The **core**, the black hole at the centre, tries to guess **who you would like to be** from your most central
+memories (ideal self: Higgins, 1987; possible selves: Markus and Nurius, 1986). It only tries when there are at
+least 20 memories on at least 3 stars; before that it says "more data needed". It is a game, not to be taken
+seriously: it is not a test or a diagnosis, and it can be very wrong.
 
 ## How it connects to your AI
 
@@ -46,7 +73,7 @@ you write to your AI ──► hook ──► diary (on your PC)
                           │
                           └──► the closest planets go to the AI before it answers
 
-every morning ──► Claude Code reads the diary ──► new planets, moons, votes, notebook
+every morning ──► Claude Code reads the diary ──► new planets, moons, counts, notebook
                   checks: every memory must be in your own words, or it is thrown away
                   used sentences go to a closed archive; the rest are deleted
 ```
@@ -92,8 +119,6 @@ To update: `git pull`, then run the install command again. Your map and your dia
 python collegamento/psyche.py status            what is on the map, what is waiting
 python collegamento/psyche.py work              run the morning job now
 python collegamento/psyche.py search "words"    the closest planets, with details
-python collegamento/psyche.py vote ID N SIGN STRENGTH [now]   confirm or fix a moon's vote
-python collegamento/psyche.py core "who you are, in a few lines"
 python collegamento/psyche.py off | on          stop or restart writing the diary
 python collegamento/psyche.py uninstall         removes hooks and task; your data stays
 ```
@@ -109,28 +134,35 @@ files). Import accepts the same JSON.
 
 ```json
 {
-  "core": { "nucleo": { "label": "CORE", "description": "who you are, in a few lines" } },
+  "core": { "nucleo": { "label": "CORE" } },
   "nodes": {
     "harbour-2026-10-21": {
       "word": "HARBOUR", "theme": "infanzia", "temiAnche": ["famiglia"], "weight": 2,
       "text": "the memory, in your own words", "accadutoIl": "when I was eight",
       "createdAt": "2026-10-21T08:00:00+02:00", "linkedTo": [],
       "lune": [
-        { "word": "HAND", "text": "a detail", "segno": 1, "forza": 5,
-          "adesso": [ { "data": "2026-11-02", "segno": 1, "forza": 4 } ] }
+        { "word": "HAND", "text": "a detail", "pos": 3, "neg": 2,
+          "adesso": [ { "data": "2026-11-02", "pos": 3, "neg": 0 } ] }
       ],
       "taccuino": ["a few lines in the third person"],
       "meccanismi": [ { "nome": "avoidance", "testo": "what it is and how it shows here",
-                        "estremo": "what it becomes when extreme and lasting", "fonte": "DSM-5-TR, APA 2022" } ]
+                        "estremo": "what it becomes when extreme and lasting", "fonte": "DSM-5-TR, APA 2022" } ],
+      "voce": { "autore": "John Bowlby", "opera": "A Secure Base, 1988", "idea": "an idea summed up, not a quotation" }
     }
   }
 }
 ```
 
-- `theme` is one of 24 keys, always in Italian (the English page translates them): identita, amore, metodo,
+- `theme` is one of 26 keys, always in Italian (the English page translates them): identita, amore, metodo,
   relazione, creazione, famiglia, conflitto, solitudine, sostanza, ia, morte, sessualita, corpo, cura, infanzia,
-  valore, denaro, casa, tempo, desiderio, lavoro, obiettivo, paura, ricordo.
-- `segno` (sign) is -1, 0 or 1; `forza` (strength) goes from 1 to 5; `adesso` holds the later *now* votes.
+  valore, denaro, casa, tempo, desiderio, lavoro, obiettivo, paura, ricordo, colpa, scoperta.
+- `pos` and `neg` are a moon's two counts, from 0 to 4; `adesso` (now) holds the later re-readings, with the same
+  counts.
+- `voce` (voice) is optional; `opera` (work) includes the year.
+- The core's guess (`ipotesi`, `basi`), `misure` and `menzioni` are written by the morning job: no need to write them
+  by hand.
+- Old files, with `segno` and `forza` or with `valore` from -10 to +10, still load: the page and the program turn
+  them into the two counts by themselves.
 - `accadutoIl` is when it happened, in words; `createdAt` is when it was written. `weight` goes from 1 to 3.
 - Every field except `word`, `theme` and `text` can be left out.
 

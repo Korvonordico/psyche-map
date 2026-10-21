@@ -92,14 +92,13 @@
   .atlas-last{font:500 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
   .atlas-last b{color:var(--star);font-weight:500}
   .atlas-total{display:flex;align-items:center;gap:6px;font:500 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
-  .lt-num{font-size:13px;font-variant-numeric:tabular-nums}
-  .lt-arrow{font-size:9px}
+  .lt-num,.lt-arrow{font-size:12px;font-variant-numeric:tabular-nums}
   .search{display:block;padding:10px 14px 8px}
   .search input{width:100%;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:3px;color:var(--ink);padding:8px 10px;font:400 13.5px/1.2 var(--body)}
   .search input::placeholder{color:var(--ink-3)}
   .search input:focus{outline:none;border-color:var(--star)}
   .atlas-list{overflow-y:auto;padding:0 6px 8px;min-height:0;flex:1;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
-  .arow{display:grid;grid-template-columns:10px minmax(0,1fr) auto 46px;gap:8px;align-items:center;width:100%;padding:6px 8px;background:none;border:0;border-radius:2px;cursor:pointer;text-align:left;color:var(--ink-2)}
+  .arow{display:grid;grid-template-columns:10px minmax(0,1fr) auto 66px;gap:8px;align-items:center;width:100%;padding:6px 8px;background:none;border:0;border-radius:2px;cursor:pointer;text-align:left;color:var(--ink-2)}
   .arow:hover{background:rgba(255,255,255,.05);color:var(--ink)}
   .arow.open{color:var(--ink);background:rgba(255,255,255,.04)}
   .adot{width:7px;height:7px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
@@ -107,6 +106,7 @@
   .acount,.aint{font:500 10.5px/1 var(--mono);font-variant-numeric:tabular-nums;text-align:right;color:var(--ink-3)}
   .aint{display:flex;justify-content:flex-end;align-items:center;gap:3px}
   .aint .ar{font-size:8px}
+  .aint .an{margin-right:5px}
   .anodes{display:flex;flex-direction:column;padding:2px 0 8px 24px}
   .anodes.flat{padding-left:0}
   .anode{display:flex;justify-content:space-between;align-items:baseline;gap:10px;background:none;border:0;padding:4px 8px;border-radius:2px;cursor:pointer;text-align:left;font:500 10.5px/1.3 var(--mono);letter-spacing:.06em;color:var(--ink-2)}
@@ -151,11 +151,6 @@
   .lett{margin-bottom:16px;padding-left:12px;border-left:2px solid var(--lc)}
   .lett-ang{margin-bottom:5px;font:500 9px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--lc)}
   .lett-txt{font:300 14px/1.65 var(--body);color:var(--ink-2)}
-  .lett-v{display:flex;align-items:center;gap:7px;margin-top:7px}
-  .lett-track{position:relative;flex:1;height:5px;border-radius:3px;background:rgba(138,160,173,.2);border:1px solid rgba(205,225,235,.3)}
-  .lett-tick{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:rgba(207,224,232,.5)}
-  .lett-fill{position:absolute;top:0;bottom:0;border-radius:3px}
-  .lett-num{min-width:28px;text-align:right;font:500 10px/1 var(--mono);font-variant-numeric:tabular-nums}
   .perc{position:relative;padding-left:17px;margin-bottom:14px}
   .perc::before{content:"";position:absolute;left:4px;top:5px;width:5px;height:5px;border-radius:50%;background:var(--c,var(--star))}
   .perc::after{content:"";position:absolute;left:6px;top:13px;bottom:-14px;width:1px;background:var(--line-2)}
@@ -174,13 +169,26 @@
   .chip{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid var(--line);border-radius:2px;background:rgba(255,255,255,.025);font:500 10.5px/1.1 var(--mono);letter-spacing:.06em;color:var(--ink-2);cursor:pointer;text-align:left}
   .chip i{width:6px;height:6px;border-radius:50%;background:var(--c);flex:none}
   .chip:hover{border-color:var(--c);color:#fff}
-  .dg-track{position:relative;height:9px;border-radius:5px;background:rgba(138,160,173,.2);border:1px solid rgba(205,225,235,.42)}
-  .dg-tick{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:rgba(207,224,232,.55)}
-  .dg-fill{position:absolute;top:0;bottom:0;border-radius:5px}
-  .dg-band{position:absolute;top:0;bottom:0;border-radius:5px;background:rgba(207,224,232,.34)}
-  .dg-mean{position:absolute;top:-3px;bottom:-3px;width:2px;border-radius:1px}
-  .dg-scale{display:flex;justify-content:space-between;align-items:center;margin-top:7px;font:500 9.5px/1 var(--mono);color:var(--ink-3);font-variant-numeric:tabular-nums}
-  .dg-scale b{font-weight:500;font-size:11.5px}
+  .dg-row{display:grid;grid-template-columns:64px minmax(0,1fr) 34px;gap:9px;align-items:center;margin-bottom:7px}
+  .dg-k{font:500 9px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .dg-track{position:relative;height:8px;border-radius:4px;background:rgba(138,160,173,.2);border:1px solid rgba(205,225,235,.42)}
+  .dg-fill{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+  .dg-n{font:500 12px/1 var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+  .dg-scale{margin-top:4px;font:500 9.5px/1.6 var(--mono);color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .dg-scale b{font-weight:500;font-size:11px}
+  .dg-src{margin:6px 0 0;font:italic 300 12px/1.45 var(--body);color:var(--ink-3)}
+  .voce{margin:0 0 10px;padding:9px 12px;border-left:2px solid var(--c,var(--star));background:rgba(255,255,255,.025)}
+  .voce b{display:block;margin-bottom:4px;font:500 10px/1.35 var(--mono);letter-spacing:.06em;color:var(--c,var(--star))}
+  .voce p{margin:0;font:300 13.5px/1.6 var(--body);color:var(--ink-2)}
+  .voce a{display:inline-block;margin-top:6px;font:400 11px/1.3 var(--mono);letter-spacing:.04em;color:var(--c,var(--star))}
+  .mis{margin:0 0 12px}
+  .mis-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .mis-k{font:500 9.5px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .mis-h b{font:500 12px/1.3 var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;text-align:right}
+  .mis-d{margin-top:3px;font:300 13px/1.5 var(--body);color:var(--ink-2)}
+  .mis-f{margin-top:2px;font:italic 300 11.5px/1.4 var(--body);color:var(--ink-3)}
+  .ipotesi{margin:0 0 10px;font:italic 300 16px/1.6 var(--body);color:var(--ink)}
+  .core-avviso{margin:12px 0 0;padding:9px 12px;border:1px solid rgba(255,201,138,.38);border-radius:2px;background:rgba(255,201,138,.06);font:300 12.5px/1.55 var(--body);color:#ffd7a0}
   .d-note{margin:26px 0 0;font:italic 300 13px/1.6 var(--body);color:var(--ink-3)}
 
   /* ---------- diario delle abitudini (M07) ---------- */
@@ -278,13 +286,17 @@
   <div class="d-sec" id="dInterpSec" hidden><div class="d-label" id="dInterpLabel">reading</div><div class="d-interp" id="dInterp"></div></div>
   <div class="d-sec" id="dPercSec" hidden><div class="d-label">perception over time</div><div id="dPerc"></div></div>
   <div class="d-sec" id="dTaccSec" hidden><div class="d-label">notebook</div><div id="dTacc"></div></div>
+  <div class="d-sec" id="dVoceSec" hidden><div class="d-label">an author’s voice</div><div id="dVoce"></div></div>
   <div class="d-sec" id="dLinksSec" hidden><div class="d-label" id="dLinksLabel">links</div><div class="d-links" id="dLinks"></div></div>
   <div class="d-sec" id="dListSec" hidden><div class="d-label" id="dListLabel">planets</div><div class="d-links" id="dList"></div></div>
   <div class="d-sec" id="dGaugeSec" hidden>
-    <div class="d-label" id="dGaugeLabel">intensity</div>
-    <div class="dg-track"><span class="dg-tick"></span><span class="dg-band" id="dgBand" hidden></span><span class="dg-fill" id="dgFill"></span><span class="dg-mean" id="dgMean" hidden></span></div>
-    <div class="dg-scale"><span>−10</span><span id="dgValue"></span><span>+10</span></div>
+    <div class="d-label" id="dGaugeLabel">positive and negative</div>
+    <div class="dg-row"><span class="dg-k">positive</span><span class="dg-track"><span class="dg-fill" id="dgPos"></span></span><b class="dg-n" id="dgPosN"></b></div>
+    <div class="dg-row"><span class="dg-k">negative</span><span class="dg-track"><span class="dg-fill" id="dgNeg"></span></span><b class="dg-n" id="dgNegN"></b></div>
+    <div class="dg-scale" id="dgValue"></div>
+    <p class="dg-src">Two separate counts, never one average with a sign (Cacioppo and Berntson, 1994): a memory can be sweet and painful at once.</p>
   </div>
+  <div class="d-sec" id="dMisSec" hidden><div class="d-label" id="dMisLabel">automatic measures</div><div id="dMis"></div></div>
   <p class="d-note" id="dNote" hidden></p>
 </aside>
 
@@ -328,7 +340,7 @@
   function esempi(){
     var ora = new Date().toISOString();
     return {
-      core: { nucleo: { label: 'CORE', description: 'The centre of the map: who you are, in a few lines. (Example)', updatedAt: ora } },
+      core: { nucleo: { label: 'CORE', updatedAt: ora } },
       nodes: {
         'esempio-1-ricordo': { word: 'EXAMPLE', theme: 'ricordo', weight: 2, createdAt: ora, linkedTo: ['esempio-2-desiderio'],
           text: 'Example node: one of your memories goes here, in your own words.',
@@ -363,54 +375,88 @@
   }
   if (FILE) setInterval(rileggiFile, 15000);
   /* Example moons and kinds (21/10/2026): added once to the three untouched
-     examples, so the menu shows the real averages and three kinds of planet.
-     Each moon is a small detail of its memory, with a word and a number;
-     the moons of the first version (numbers only) get their words too. */
+     examples, so the menu shows real counts and three kinds of planet. Each
+     moon is a small detail of its memory, with a word and its two counts,
+     positive and negative from 0 to 4; the fifth item is the number of the
+     very first version, to recognise examples saved back then. */
+  var ESEMPI_LUNE = {
+    'esempio-1-ricordo': [[['SMELL', 'A moon is a small detail of the memory: a smell, a colour, a sentence you heard. (Example)', 3, 0, 7],
+      ['COLOUR', 'Each moon has two counts, positive and negative, from 0 to 4: a detail can be lovely and painful at once. (Example)', 2, 2, 4]], 'earth'],
+    'esempio-2-desiderio': [[['VOICE', 'A detail that weighs on you: the negative counts more. (Example)', 0, 2, -3], ['LIGHT', 'A good detail: the positive counts. (Example)', 3, 0, 5],
+      ['WAITING', 'Hover a moon to read it, click it to open it. (Example)', 1, 3, -6]], 'gas'],
+    'esempio-3-metodo': [[['FILE', 'In the file a moon is written like this: { "word": "FILE", "text": "the detail", "pos": 3, "neg": 0 }; pos and neg from 0 to 4. (Example)', 3, 0, 8]], 'ice']
+  };
   (function(){
-    var n = dati && dati.nodes, ids = n ? Object.keys(n) : [];
-    var ex = {
-      'esempio-1-ricordo': [[['SMELL', 'A moon is a small detail of the memory: a smell, a colour, a sentence you heard. (Example)', 7],
-        ['COLOUR', 'Each moon has its own number, from -10 to +10; the planet takes the average of its moons. (Example)', 4]], 'earth'],
-      'esempio-2-desiderio': [[['VOICE', 'A detail that weighs on you: its number is negative. (Example)', -3], ['LIGHT', 'A good detail: its number is positive. (Example)', 5],
-        ['WAITING', 'Hover a moon to read it, click it to open it. (Example)', -6]], 'gas'],
-      'esempio-3-metodo': [[['FILE', 'In the file to import, a moon is written like this: { "word": "FILE", "text": "the detail", "valore": 8 }. (Example)', 8]], 'ice']
-    };
+    var n = dati && dati.nodes, ids = n ? Object.keys(n) : [], ex = ESEMPI_LUNE;
     function nuda(id){
       var l = n[id].lune;
       if (!l) return true;
       return Array.isArray(l) && l.length === ex[id][0].length &&
-        l.every(function(m, j){ return m && !m.word && !m.text && m.valore === ex[id][0][j][2]; });
+        l.every(function(m, j){ return m && !m.word && !m.text && m.valore === ex[id][0][j][4]; });
     }
     if (ids.length !== 3 || ids.some(function(id){ return !ex[id] || !nuda(id); })) return;
     ids.forEach(function(id){
-      n[id].lune = ex[id][0].map(function(m){ return { word: m[0], text: m[1], valore: m[2] }; });
+      n[id].lune = ex[id][0].map(function(m){ return { word: m[0], text: m[1], pos: m[2], neg: m[3] }; });
       if (!n[id].tipo) n[id].tipo = ex[id][1];
     });
     salva(true);
   })();
-  /* Second upgrade of the untouched examples (21/10/2026): two dates, a
-     second star, moons with sign, strength and «now», a notebook. */
+  /* Second upgrade of the untouched examples (21/10/2026, redone the same
+     day for the two counts): two dates, a second star, a moon re-read
+     «now», a notebook, an author's voice and the automatic measures, all
+     marked as examples. Examples saved by an earlier version get the two
+     counts in place of sign and strength, and the core loses its old
+     example text: it now fills itself when there are enough memories. */
   (function(){
     var n = dati && dati.nodes, ids = n ? Object.keys(n) : [];
-    if (FILE || ids.length !== 3 || ids.some(function(id){ return id.indexOf('esempio-') !== 0; }) || !n['esempio-1-ricordo'] || n['esempio-1-ricordo'].taccuino) return;
-    var a = n['esempio-1-ricordo'], b = n['esempio-2-desiderio'];
+    if (FILE || ids.length !== 3 || ids.some(function(id){ return !ESEMPI_LUNE[id]; }) || n['esempio-1-ricordo'].voce) return;
+    var a = n['esempio-1-ricordo'], b = n['esempio-2-desiderio'], nu = dati.core && dati.core.nucleo;
+    if (nu && /\(Example\)$/.test(String(nu.description || ''))) delete nu.description;
     a.accadutoIl = 'summer 2015 (example)'; a.temiAnche = ['desiderio'];
     a.taccuino = 'Example notebook. Here the AI writes, like a psychologist taking notes, what happened in this memory and what it left behind: for example «in this memory they feel left out; since then they tend not to ask for help».';
     a.meccanismi = [{ nome: 'Avoidance', testo: 'Keeping away from what recalls a painful moment: it brings relief at once, but in the long run the fear stays. (Example)', estremo: 'it is one of the signs of post-traumatic stress disorder and of several anxiety disorders', fonte: 'DSM-5-TR (APA, 2022); ICD-11 (WHO, 2019)' }];
-    if (b){
-      b.accadutoIl = 'always (example)';
-      b.taccuino = 'Example notebook: a strong desire with lovely details and heavy ones. The moons show both.';
-      b.meccanismi = [{ nome: 'Rumination', testo: 'Going back again and again to the same thought without reaching a solution. (Example)', estremo: 'it is a trait of generalised anxiety disorder and of depression', fonte: 'DSM-5-TR (APA, 2022); Nolen-Hoeksema, 2008' }];
+    a.voce = { autore: 'Martin A. Conway', opera: 'Memory and the self, 2005', idea: 'Personal memories are not recordings: the self of today chooses them and rebuilds them to fit its goals. (Example)' };
+    a.misure = { centralita: { ritorni: 2, legami: 2, identita: 1, punti: 5, posto: 1, su: 3 },
+      elaborazione: { prima: 2.1, ultima: 4.3, volte: 2, tendenza: 'su' }, vividezza: { interni: 6, esterni: 2, quota: 75 } };
+    b.accadutoIl = 'always (example)';
+    b.taccuino = 'Example notebook: a strong desire with lovely details and heavy ones. The moons show both.';
+    b.meccanismi = [{ nome: 'Rumination', testo: 'Going back again and again to the same thought without reaching a solution. (Example)', estremo: 'it is a trait of generalised anxiety disorder and of depression', fonte: 'DSM-5-TR (APA, 2022); Nolen-Hoeksema, 2008' }];
+    b.voce = { autore: 'Hazel Markus and Paula Nurius', opera: 'Possible selves, 1986', idea: 'Our ideas of who we might become, or are afraid of becoming, steer what we long for and what we do. (Example)' };
+    ids.forEach(function(id){
+      (n[id].lune || []).forEach(function(l, j){
+        var m = ESEMPI_LUNE[id][0][j];
+        if (!m || !l || typeof l !== 'object') return;
+        l.text = m[1]; l.pos = m[2]; l.neg = m[3];
+        delete l.segno; delete l.forza; delete l.valore; delete l.provvisorio;
+      });
+    });
+    var w = b.lune && b.lune[2];
+    if (w && typeof w === 'object'){
+      w.createdAt = new Date(Date.now() - 864e5*75).toISOString();
+      w.adesso = [{ data: new Date(Date.now() - 864e5*30).toISOString(), pos: 1, neg: 3 },
+                  { data: new Date().toISOString(), pos: 1, neg: 2, nota: 'it weighs less now: negative feelings usually fade faster than positive ones (Walker and Skowronski). (Example)' }];
     }
-    var sf = function(l, s, f){ if (l){ l.segno = s; l.forza = f; delete l.valore; } };
-    if (a.lune){ sf(a.lune[0], 1, 4); sf(a.lune[1], 1, 2); a.lune[1].provvisorio = true; }
-    if (b && b.lune){
-      sf(b.lune[0], -1, 2); sf(b.lune[1], 1, 3); sf(b.lune[2], -1, 4);
-      b.lune[2].createdAt = new Date(Date.now() - 864e5*75).toISOString();
-      b.lune[2].adesso = [{ data: new Date(Date.now() - 864e5*30).toISOString(), segno: -1, forza: 3 },
-                          { data: new Date().toISOString(), segno: -1, forza: 2, nota: 'it weighs less now: the negative fades faster' }];
+    salva(true);
+  })();
+  /* Third upgrade of the untouched examples (21/10/2026): what kind of
+     memory each one is, the kind of every moon and a meaning said in
+     words, so the menu shows these too. */
+  (function(){
+    var n = dati && dati.nodes, ids = n ? Object.keys(n) : [], ks = Object.keys(ESEMPI_LUNE);
+    if (FILE || ids.length !== 3 || ids.some(function(id){ return !ESEMPI_LUNE[id]; }) || !n[ks[0]] || !n[ks[0]].voce || n[ks[0]].forma) return;
+    var forme = ['singolo', 'periodo', 'ripetuto'], cat = [['sensi', 'emozioni'], ['sensi', 'sensi', 'emozioni'], ['evento']];
+    ks.forEach(function(id, k){
+      var x = n[id]; if (!x) return;
+      x.forma = forme[k];
+      (x.lune || []).forEach(function(l, j){ if (l && typeof l === 'object' && cat[k][j]) l.categoria = cat[k][j]; });
+    });
+    var a = n[ks[0]];
+    a.ruolo = 'svolta';
+    a.significati = [{ tipo: 'comprensione', text: 'Since that day I have understood that I can ask for help. (Example)' }];
+    if (a.misure){
+      a.misure.copertura = { tipi: 2, su: 5, conti: { sensi: 1, emozioni: 1 } };
+      a.misure.significato = { lezioni: 0, comprensioni: 1 };
     }
-    var c = n['esempio-3-metodo']; if (c && c.lune){ sf(c.lune[0], 1, 4); c.lune[0].text = 'In the file a moon is written like this: { "word": "FILE", "text": "the detail", "segno": 1, "forza": 4 }; sign -1, 0 or +1, strength 1 to 5. (Example)'; }
     salva(true);
   })();
   function istantaneaDoc(coll, id){
@@ -521,18 +567,28 @@
   var coarse = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
 
   /* Theme colours are carried over unchanged from Psyche Circuit, so every
-     theme keeps the colour its owner already knows it by. */
+     theme keeps the colour its owner already knows it by. The two stars
+     added later, guilt and discovery, take the two widest gaps left on the
+     colour wheel (around 300 and 110 degrees). */
   var THEME_COLORS = {
     "identita":"#e8e3d0", "amore":"#ff3fb0", "metodo":"#62c9b0", "relazione":"#35d1ff",
     "creazione":"#f6e05e", "famiglia":"#ff9f43", "conflitto":"#ff4d4d", "solitudine":"#8095a8",
     "sostanza":"#b5e63f", "ia":"#3de0e0", "morte":"#9aa5b1", "sessualita":"#c774f0",
     "corpo":"#4ade80", "cura":"#33ffb3", "infanzia":"#ffd93d", "valore":"#d4a373",
     "denaro":"#e0b341", "casa":"#ff7a5c", "tempo":"#a78bfa", "desiderio":"#ff9ecb",
-    "lavoro":"#6f9bff", "obiettivo":"#7dd3fc", "paura":"#ff6a3d", "ricordo":"#b8a6d9"
+    "lavoro":"#6f9bff", "obiettivo":"#7dd3fc", "paura":"#ff6a3d", "ricordo":"#b8a6d9",
+    "colpa":"#d65cd2", "scoperta":"#62df49"
   };
-  var THEME_NAMES = { identita:'identity', amore:'love', metodo:'method', relazione:'relationships', creazione:'creation', famiglia:'family', conflitto:'conflict', solitudine:'solitude', sostanza:'substances', ia:'AI', morte:'death', sessualita:'sexuality', corpo:'body', cura:'care', infanzia:'childhood', valore:'values', denaro:'money', casa:'home', tempo:'time', desiderio:'desire', lavoro:'work', obiettivo:'goals', paura:'fear', ricordo:'memory' };
-  var VAL_POS = '#1fb6ff', VAL_NEG = '#ff2d55', VAL_ZERO = '#e6f2f5';
-  var NUM_POS = '#3ddc84', NUM_NEG = '#ff4d4d';   /* numbers in the menu: green above zero, red below */
+  var THEME_NAMES = { identita:'identity', amore:'love', colpa:'guilt', scoperta:'discovery', metodo:'method', relazione:'relationships', creazione:'creation', famiglia:'family', conflitto:'conflict', solitudine:'solitude', sostanza:'substances', ia:'AI', morte:'death', sessualita:'sexuality', corpo:'body', cura:'care', infanzia:'childhood', valore:'values', denaro:'money', casa:'home', tempo:'time', desiderio:'desire', lavoro:'work', obiettivo:'goals', paura:'fear', ricordo:'memory' };
+  /* What kind of memory a planet is (Autobiographical Memory Test,
+     Williams and Broadbent 1986), its optional role (Pillemer 2001) and
+     the five kinds of lived detail of a moon (Levine and colleagues 2002),
+     with the keys psyche.py writes. */
+  var FORME = { singolo: 'single moment', ripetuto: 'repeated moment', periodo: 'extended period' };
+  var RUOLI = { inizio: 'a beginning', svolta: 'a turning point', conferma: 'an anchor', guida: 'a guide for today' };
+  var CATEGORIE = { evento: 'event', luogo: 'place', tempo: 'time', sensi: 'senses', emozioni: 'emotions and thoughts' };
+  var VAL_POS = '#1fb6ff', VAL_NEG = '#ff2d55';
+  var NUM_POS = '#3ddc84', NUM_NEG = '#ff4d4d';   /* the two counts in the menu: green the positive, red the negative */
   var CORE_HEX = '#ffc98a', LISTEN = '#ff4848';
   var BIRTH_DATE = null;   /* your birth date, e.g. new Date(1990, 0, 31): shows your age next to the title */
   var PROJECT_START = (function(){ var v = null; try { v = localStorage.getItem('psyche-inizio'); if (!v){ v = new Date().toISOString(); localStorage.setItem('psyche-inizio', v); } } catch (e){} return v ? new Date(v) : new Date(); })();   /* the first day this map was opened in this browser */
@@ -564,7 +620,6 @@
     var w = String(node.text || '').trim().split(/\s+/)[0] || '?';
     return w.replace(/[.,!?;:"'’]+$/, '').toUpperCase().slice(0, 18);
   }
-  function fmtSigned(x){ var r = Math.round(x*10)/10; return (r > 0 ? '+' : '') + r; }
   function fold(s){ return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
   function byDate(a, b){ return ((Date.parse(a.createdAt) || 0) - (Date.parse(b.createdAt) || 0)) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0); }
   function fmtDate(iso, withTime){
@@ -1419,7 +1474,7 @@
   /* The black hole at the centre is the nucleus. Its horizon is an opaque
      black sphere, so every glow behind it is cut into the dark "shadow";
      the accretion disk turns around it, inner edge fastest and hottest. */
-  var core = { label: 'CORE', description: '', updatedAt: null };
+  var core = { label: 'CORE', ipotesi: '', basi: [], updatedAt: null };
   var CORE_R = 2.2, CORE_PICK = 13, cWarm = new THREE.Color(CORE_HEX);
   var horizon = new THREE.Mesh(new THREE.SphereGeometry(1, 40, 24), new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide }));
   horizon.scale.setScalar(CORE_R); scene.add(horizon);
@@ -1495,7 +1550,7 @@
   var coreGlow = makeSprite(glowTex, cWarm.clone(), 30, 0.55); scene.add(coreGlow);
   var coreHalo = makeSprite(glowTex, new THREE.Color('#ffcf8a'), 130, 0.26); scene.add(coreHalo);
   var listenHalo = makeSprite(glowTex, new THREE.Color(LISTEN), 36, 0); scene.add(listenHalo);
-  var coreLabel = el('div', 'clabel'), coreLabelB = el('b', null, 'CORE'), coreLabelS = el('span', null, 'listening');
+  var coreLabel = el('div', 'clabel'), coreLabelB = el('b', null, 'CORE'), coreLabelS = el('span', null, 'who would you like to be?');
   coreLabel.appendChild(coreLabelB); coreLabel.appendChild(coreLabelS); labelsEl.appendChild(coreLabel);
 
   /* ================= data model ================= */
@@ -1505,20 +1560,6 @@
   var focusCache = { nb: null, starCounts: null };
   var clock = 0, simTime = 0, timeScale = 1;
 
-  /* DERIVED VALENCE — kept exactly as in Psyche Circuit: a node read from
-     five angles takes the mean of their scores, and their spread as band. */
-  function deriveFromLetture(n){
-    if (!n || !Array.isArray(n.letture)) return;
-    var vals = n.letture.map(function(L){ return (L && typeof L.valenza === 'number') ? L.valenza : null; })
-                        .filter(function(v){ return v !== null && !isNaN(v); });
-    if (!vals.length) return;
-    var m = vals.reduce(function(a, b){ return a + b; }, 0) / vals.length;
-    n.valenza = m; n.valenzaFonte = 'letture';
-    if (vals.length > 1){
-      var vr = vals.reduce(function(a, b){ var d0 = b - m; return a + d0*d0; }, 0) / vals.length;
-      n.ampiezza = Math.sqrt(vr);
-    }
-  }
   function upsertNode(doc){
     var d = doc.data() || {};
     var n = nodesById[doc.id];
@@ -1546,10 +1587,15 @@
     n.temiAnche = Array.isArray(d.temiAnche) ? d.temiAnche.map(themeKey).filter(Boolean) : [];
     n.taccuino = Array.isArray(d.taccuino) ? d.taccuino.map(String) : (d.taccuino ? [String(d.taccuino)] : []);
     n.meccanismi = Array.isArray(d.meccanismi) ? d.meccanismi.filter(function(m){ return m && (m.nome || m.testo); }) : [];
-    n.valenza = (typeof d.valenza === 'number') ? d.valenza : null;
-    n.ampiezza = (typeof d.ampiezza === 'number') ? d.ampiezza : null;
-    n.valenzaFonte = d.valenzaFonte || null;
-    deriveFromLetture(n);
+    /* The third level (an author's voice) and the automatic measures, both
+       written by psyche.py: nobody types a number. */
+    n.voce = (d.voce && typeof d.voce === 'object' && d.voce.idea) ? d.voce : null;
+    n.misure = (d.misure && typeof d.misure === 'object') ? d.misure : null;
+    /* What kind of memory it is, its optional role and the lessons or
+       insights said in words, all written by psyche.py. */
+    n.forma = typeof d.forma === 'string' ? d.forma : '';
+    n.ruolo = typeof d.ruolo === 'string' ? d.ruolo : '';
+    n.significati = Array.isArray(d.significati) ? d.significati.filter(function(x){ return x && x.text; }) : [];
   }
   function rebuildAdjacency(){
     adj = {};
@@ -1651,7 +1697,7 @@
       seed: rng(), label: label, labelCount: ls,
       pos: new THREE.Vector3(), local: new THREE.Vector3(), localTarget: new THREE.Vector3(), placed: false,
       born: initialLoadDone ? clock : -10, scale: 1, flash: 0, emph: 1, related: true,
-      list: [], count: 0, wsum: 0, starR: 1, R: 4, rings_n: 1, meanVal: null, ampVal: null
+      list: [], count: 0, wsum: 0, starR: 1, R: 4, rings_n: 1, conti: null
     };
     /* Each star turns on its own axis (the normal of its planets' plane) once every two to three and a half minutes. */
     s.spin = (hashFrac('giro:' + theme) < 0.5 ? 1 : -1)*Math.PI*2/(120 + 90*hashFrac('giro2:' + theme));
@@ -1743,54 +1789,74 @@
     var rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.BufferAttribute(arr, 3));
     s.rings.geometry = rg;
   }
-  /* Numbers from -10 to +10, each level feeding the next: a planet is the
-     average of its moons (node.lune = [{ valore: n }]), or its own vote
-     (valenza) when it has no moons; a star is the average of its planets;
-     the total (safe control) is the average of the stars. PROVVISORI: until
-     the moons get their numbers, a planet without one shows a fixed random
-     number (the same at every opening), so the menu can be judged. */
-  var PROVVISORI = true;
-  /* Moons (21/10/2026): sign -1, 0 or +1 and strength 1 to 5 as felt then
-     (SAM scale, Bradley & Lang 1994), plus «adesso»: [{ data, segno, forza }],
-     how it feels each time it is looked at again (Fading Affect Bias,
-     Walker & Skowronski). The number on -10..+10 is sign x strength x 2;
-     a moon with only «valore» (first version) keeps it. */
-  function numSF(s, f){
-    if (typeof s !== 'number' || isNaN(s)) return null;
-    s = s > 0 ? 1 : s < 0 ? -1 : 0;
-    return s === 0 ? 0 : s*clamp(Math.round(typeof f === 'number' && !isNaN(f) ? f : 3), 1, 5)*2;
+  /* Two counts, never one number with a sign (Cacioppo e Berntson 1994):
+     each moon has pos and neg, from 0 (not at all) to 4 (extremely), as in
+     the Evaluative Space Grid (Larsen and colleagues, 2009). The AI gives them from
+     the person's own words in the morning job; nobody types them. A planet
+     adds up its moons, a star its planets, the map its stars: nothing is
+     averaged away, so a memory that is sweet and painful at once stays
+     visible. What prevails uses Griffin's ambivalence index (Thompson,
+     Zanna e Griffin 1995), as psyche.py does. Old votes (sign and
+     strength, or the first -10..+10 number) are read as counts, the same
+     way psyche.py migrates them. */
+  var SCALA = 4;
+  var VERD = { pos: 'positive prevails', neg: 'negative prevails', amb: 'ambivalent', neu: 'neutral' };
+  function pnLuna(x){
+    if (!x || typeof x !== 'object') return null;
+    if (typeof x.pos === 'number' || typeof x.neg === 'number')
+      return [clamp(Math.round(Math.abs(x.pos || 0)), 0, SCALA), clamp(Math.round(Math.abs(x.neg || 0)), 0, SCALA)];
+    if (typeof x.segno === 'number' && !isNaN(x.segno)){
+      var f = Math.round(clamp(typeof x.forza === 'number' && x.forza ? x.forza : 3, 1, 5)*SCALA/5);
+      return x.segno > 0 ? [f, 0] : x.segno < 0 ? [0, f] : [0, 0];
+    }
+    if (typeof x.valore === 'number' && !isNaN(x.valore)){
+      var g = Math.round(clamp(Math.abs(x.valore), 0, 10)*SCALA/10);
+      return x.valore > 0 ? [g, 0] : [0, g];
+    }
+    return null;
   }
-  function valLuna(l){
-    if (!l || typeof l !== 'object') return null;
-    var v = numSF(l.segno, l.forza); if (v !== null) return v;
-    return typeof l.valore === 'number' && !isNaN(l.valore) ? clamp(l.valore, -10, 10) : null;
-  }
+  /* The «now» re-readings of a moon that have counts, oldest first. */
   function adessoLuna(l){
     if (!l || typeof l !== 'object' || !Array.isArray(l.adesso)) return [];
-    return l.adesso.filter(function(a){ return a && typeof a.segno === 'number'; })
-      .slice().sort(function(a, b){ return String(a.data || '').localeCompare(String(b.data || '')); });
+    return l.adesso.filter(function(a){ return pnLuna(a) !== null; });
   }
-  function valLunaAdesso(l){ var a = adessoLuna(l); return a.length ? numSF(a[a.length - 1].segno, a[a.length - 1].forza) : null; }
-  function valoreLune(n){
-    var v = (n.lune || []).map(valLuna)
-      .filter(function(x){ return x !== null; });
-    return v.length ? v.reduce(function(a, b){ return a + b; }, 0)/v.length : null;
+  /* [positive, negative, moons counted] added up, or null when nothing is counted. */
+  function sommaPN(list){
+    var p = 0, q = 0, k = 0;
+    list.forEach(function(v){ if (v){ p += v[0]; q += v[1]; k += v.length > 2 ? v[2] : 1; } });
+    return k ? [p, q, k] : null;
   }
-  function valorePianeta(n){
-    var l = valoreLune(n); if (l !== null) return l;
-    if (typeof n.valenza === 'number' && !isNaN(n.valenza)) return n.valenza;
-    return PROVVISORI ? Math.round((hashFrac('valore:' + n.id)*20 - 10)*10)/10 : null;
+  /* A planet's counts; with adesso each moon counts its latest re-reading. */
+  function contiPianeta(n, adesso){
+    return sommaPN((n.lune || []).map(function(l){
+      var a = adesso ? adessoLuna(l) : [];
+      return a.length ? pnLuna(a[a.length - 1]) : pnLuna(l);
+    }));
   }
   function themeStats(){
-    for (var t in systems){
-      var s = systems[t], rated = s.list.filter(function(n){ return valorePianeta(n) !== null; }), vals = rated.map(valorePianeta);
-      s.meanVal = vals.length ? vals.reduce(function(a, v){ return a + v; }, 0) / vals.length : null;
-      s.ampVal = null;
-      if (vals.length > 1){
-        var vr = vals.reduce(function(a, v){ var d0 = v - s.meanVal; return a + d0*d0; }, 0) / vals.length;
-        s.ampVal = Math.sqrt(vr);
-      } else if (rated.length === 1 && typeof rated[0].ampiezza === 'number'){ s.ampVal = rated[0].ampiezza; }
-    }
+    for (var t in systems) systems[t].conti = sommaPN(systems[t].list.map(function(n){ return contiPianeta(n); }));
+  }
+  function contiMappa(){ return sommaPN(Object.keys(systems).map(function(t){ return systems[t].conti; })); }
+  function verdetto(v){
+    if (!v || v[0] + v[1] < 0.5) return 'neu';
+    if (Math.min(v[0], v[1])*3 > Math.max(v[0], v[1])) return 'amb';
+    return v[0] > v[1] ? 'pos' : 'neg';
+  }
+  function fmtPN(v){ return v ? '▲' + v[0] + ' ▼' + v[1] : ''; }
+  /* Blue for the positive, red for the negative, mixed in proportion when
+     both are there: in the drawer, on the chips and on the rims in the sky. */
+  function hexRGB(h){ return [1, 3, 5].map(function(i){ return parseInt(h.substr(i, 2), 16); }); }
+  var RGB_POS = hexRGB(VAL_POS), RGB_NEG = hexRGB(VAL_NEG);
+  function pnHex(v){
+    if (!v || v[0] + v[1] < 0.5) return null;
+    var t = v[1]/(v[0] + v[1]);
+    return 'rgb(' + RGB_POS.map(function(x, i){ return Math.round(x + (RGB_NEG[i] - x)*t); }).join(',') + ')';
+  }
+  var rimNeg = new THREE.Color(VAL_NEG);
+  function setRim(attr, i, v){
+    if (!v || v[0] + v[1] < 0.5){ attr.setXYZW(i, 0, 0, 0, 0); return; }
+    tmpC.set(VAL_POS).lerp(rimNeg, v[1]/(v[0] + v[1]));
+    attr.setXYZW(i, tmpC.r, tmpC.g, tmpC.b, clamp(Math.max(v[0], v[1])/(SCALA*(v[2] || 1)), 0.2, 1));
   }
 
   /* ================= planets: one instanced draw for every memory ================= */
@@ -1967,12 +2033,13 @@
   /* The kind of a planet: its "tipo" if the node has one; otherwise its
      theme chooses, two times out of three, and the rest vary (big ones are
      mostly gas giants). It depends only on the node, so a planet never
-     changes kind when other memories are added. Fire for conflict, fear
-     and desire; living worlds for love, family, home and memories; gas
-     giants for creation, identity, AI and goals; ice for solitude, time
-     and death; rock for method, work, money, substance and values. */
-  var TEMA_TIPO = { conflitto: 4, paura: 4, sessualita: 4, desiderio: 4, amore: 1, famiglia: 1, cura: 1, infanzia: 1, casa: 1, ricordo: 1, relazione: 1, corpo: 1,
-    creazione: 2, ia: 2, identita: 2, obiettivo: 2, solitudine: 3, tempo: 3, morte: 3, metodo: 0, lavoro: 0, denaro: 0, sostanza: 0, valore: 0 };
+     changes kind when other memories are added. Fire for conflict, fear,
+     desire and guilt; living worlds for love, family, home, memories and
+     discovery; gas giants for creation, identity, AI and goals; ice for
+     solitude, time and death; rock for method, work, money, substance and
+     values. */
+  var TEMA_TIPO = { conflitto: 4, paura: 4, sessualita: 4, desiderio: 4, colpa: 4, amore: 1, famiglia: 1, cura: 1, infanzia: 1, casa: 1, ricordo: 1, relazione: 1, corpo: 1,
+    scoperta: 1, creazione: 2, ia: 2, identita: 2, obiettivo: 2, solitudine: 3, tempo: 3, morte: 3, metodo: 0, lavoro: 0, denaro: 0, sostanza: 0, valore: 0 };
   function tipoPianeta(n){
     if (n.tipo && TIPI[n.tipo] !== undefined) return TIPI[n.tipo];
     var h = hashFrac('tipo:' + n.id), k = TEMA_TIPO[themeKey(n.theme)];
@@ -1993,7 +2060,7 @@
         q.premultiply(n.pl.q || IDQ);
         moonList.push({ node: n, u: new THREE.Vector3(1, 0, 0).applyQuaternion(q), v: new THREE.Vector3(0, 0, 1).applyQuaternion(q),
           k: 2.7 + j*0.9 + r()*0.25, size: 0.2 + r()*0.12, phase: r()*Math.PI*2, omega: Math.PI*2/(8 + r()*7),
-          type: r() < 0.55 ? 0 : 3, seed: r(), val: valLuna(l),
+          type: r() < 0.55 ? 0 : 3, seed: r(), val: pnLuna(l),
           idx: j, world: n.pl.world.clone(), r: 0 });
         n.pl.moons[j] = moonList[moonList.length - 1];
       });
@@ -2012,8 +2079,7 @@
     moonList.forEach(function(m, i){
       c.set(colorForTheme(m.node.theme)).lerp(m.type === 3 ? MOON_ICE : MOON_ROCK, 0.7);
       ga.aColor.setXYZ(i, c.r, c.g, c.b); ga.aType.setX(i, m.type); ga.aSeed.setX(i, m.seed);
-      if (m.val !== null && Math.abs(m.val) >= 0.05){ tmpC.set(m.val > 0 ? VAL_POS : VAL_NEG); ga.aVal.setXYZW(i, tmpC.r, tmpC.g, tmpC.b, clamp(Math.abs(m.val)/10, 0.2, 1)); }
-      else ga.aVal.setXYZW(i, 0, 0, 0, 0);
+      setRim(ga.aVal, i, m.val);
     });
     ga.aColor.needsUpdate = true; ga.aType.needsUpdate = true; ga.aSeed.needsUpdate = true; ga.aVal.needsUpdate = true;
   }
@@ -2100,10 +2166,7 @@
       n.pl.tipoN = tipoPianeta(n);
       if (!n.pl.q){ var rq = mulberry32(hash32('asse:' + n.id)); n.pl.q = new THREE.Quaternion().setFromEuler(new THREE.Euler((rq() - 0.5)*0.8, rq()*Math.PI*2, (rq() - 0.5)*0.8)); }
       ga.aType.setX(i, n.pl.tipoN); ga.aSeed.setX(i, hashFrac('seme:' + n.id));
-      if (typeof n.valenza === 'number' && !isNaN(n.valenza) && Math.abs(n.valenza) >= 0.05){
-        tmpC.set(n.valenza > 0 ? VAL_POS : VAL_NEG);
-        ga.aVal.setXYZW(i, tmpC.r, tmpC.g, tmpC.b, clamp(Math.abs(n.valenza)/10, 0.2, 1));
-      } else ga.aVal.setXYZW(i, 0, 0, 0, 0);
+      setRim(ga.aVal, i, contiPianeta(n));
       glowBase[i*3] = c.r*0.8; glowBase[i*3+1] = c.g*0.8; glowBase[i*3+2] = c.b*0.8;
       gg.aColor.setXYZ(i, glowBase[i*3], glowBase[i*3+1], glowBase[i*3+2]);
       gg.aPhase.setX(i, r());
@@ -2266,20 +2329,17 @@
     var n = ref && ref.node, pl = (n && nodesById[n.id] === n) ? n.pl : null;
     return (pl && pl.moons && pl.moons[ref.idx]) || null;
   }
-  /* What a moon says: its word, its detail and its number. A moon is an
-     object ({ word, text, valore }; parola and testo work too) or just a
-     sentence; without a word it is called by its place. */
+  /* What a moon says: its word, its detail and its two counts. A moon is an
+     object ({ word, text, pos, neg, categoria, adesso }; parola and testo work too) or
+     just a sentence; without a word it is called by its place. */
   function lunaInfo(n, j){
     var l = n.lune ? n.lune[j] : null;
     if (typeof l === 'string') l = { text: l };
     l = l || {};
     var w = String(l.word || l.parola || '').trim(), t = String(l.text || l.testo || '').trim();
-    return { w: w, word: w || 'MOON ' + (j + 1), text: t,
-      valore: valLuna(l), segno: typeof l.segno === 'number' ? (l.segno > 0 ? 1 : l.segno < 0 ? -1 : 0) : null,
-      forza: typeof l.forza === 'number' ? clamp(Math.round(l.forza), 1, 5) : null, adesso: adessoLuna(l),
-      provvisorio: !!l.provvisorio, createdAt: l.createdAt || n.createdAt };
+    return { w: w, word: w || 'MOON ' + (j + 1), text: t, pn: pnLuna(l), adesso: adessoLuna(l),
+      createdAt: l.createdAt || n.createdAt, cat: CATEGORIE[l.categoria] ? l.categoria : '' };
   }
-  function valColor(v){ return v === null ? null : Math.abs(v) < 0.05 ? VAL_ZERO : (v > 0 ? VAL_POS : VAL_NEG); }
   function onFocusChange(){
     var f = currentFocus();
     focusCache.nb = (f && f.type === 'planet') ? new Set(neighbors(f.node)) : null;
@@ -2500,7 +2560,7 @@
     } else if (h.type === 'moon'){
       var mn = h.node, lm = lunaInfo(mn, h.idx);
       tipEl.style.setProperty('--c', colorForTheme(mn.theme));
-      k.appendChild(el('span', null, 'moon of ' + wordFor(mn) + (lm.valore !== null ? ' · ' + fmtSigned(lm.valore) : '')));
+      k.appendChild(el('span', null, 'moon of ' + wordFor(mn) + (lm.pn ? ' · ' + fmtPN(lm.pn) : '')));
       w.textContent = lm.word;
       tx.textContent = lm.text.length > 150 ? lm.text.slice(0, 148).replace(/\s+\S*$/, '') + '…' : lm.text;
     } else if (h.type === 'star'){
@@ -2512,9 +2572,9 @@
       tx.textContent = s.count + (s.count === 1 ? ' memory' : ' memories') + ' · ' + tot + ' links with other stars';
     } else {
       tipEl.style.setProperty('--c', CORE_HEX);
-      k.appendChild(el('span', null, 'core · listening'));
+      k.appendChild(el('span', null, 'core · who you would like to be · a game'));
       w.textContent = core.label || 'CORE';
-      var desc = String(core.description || '');
+      var desc = core.ipotesi ? String(core.ipotesi) : (statoNucleo().pochi ? 'More data needed.' : 'Not yet.');
       tx.textContent = desc.length > 150 ? desc.slice(0, 148).replace(/\s+\S*$/, '') + '…' : desc;
     }
     tipEl.appendChild(k); tipEl.appendChild(w); if (tx.textContent) tipEl.appendChild(tx);
@@ -2631,8 +2691,8 @@
     drawer.inert = true;
   }
   function resetDrawer(){
-    ['dOpera', 'dText', 'dInterpSec', 'dPercSec', 'dTaccSec', 'dLinksSec', 'dListSec', 'dGaugeSec', 'dNote'].forEach(function(id){ $(id).hidden = true; });
-    ['dOpera', 'dInterp', 'dPerc', 'dLinks', 'dList'].forEach(function(id){ $(id).textContent = ''; });
+    ['dOpera', 'dText', 'dInterpSec', 'dPercSec', 'dTaccSec', 'dVoceSec', 'dLinksSec', 'dListSec', 'dGaugeSec', 'dMisSec', 'dNote'].forEach(function(id){ $(id).hidden = true; });
+    ['dOpera', 'dInterp', 'dPerc', 'dVoce', 'dLinks', 'dList', 'dMis'].forEach(function(id){ $(id).textContent = ''; });
   }
   function chip(text, color, onClick, hoverRef){
     var c = el('button', 'chip'); c.type = 'button'; c.style.setProperty('--c', color);
@@ -2641,24 +2701,99 @@
     if (hoverRef) previewOn(c, hoverRef);
     return c;
   }
-  function setGauge(v, amp, fonte, label){
+  /* The two counts in the drawer: one bar for the positive and one for the
+     negative, each filled up to the most it could be (4 for every moon
+     counted); then what prevails, and how it is now if it has changed. */
+  function sommaTxt(k){ return k === 1 ? 'one moon, from 0 to 4' : 'sum of ' + k + ' moons, each from 0 to 4'; }
+  function plur(n, uno, tanti){ return n + ' ' + (n === 1 ? uno : tanti); }
+  function num1(x){ return String(Math.round(x*10)/10); }
+  function setConti(v, label, tail, adesso){
     var sec = $('dGaugeSec');
-    if (typeof v !== 'number' || isNaN(v)){ sec.hidden = true; return; }
+    if (!v){ sec.hidden = true; return; }
     sec.hidden = false;
-    var f = clamp(v/10, -1, 1), pct = Math.abs(f)*50, col = f >= 0 ? VAL_POS : VAL_NEG;
-    var fill = $('dgFill'), band = $('dgBand'), mean = $('dgMean');
-    fill.style.background = col; fill.style.left = (f >= 0 ? 50 : 50 - pct) + '%'; fill.style.width = pct + '%';
-    var banded = typeof amp === 'number' && amp > 0.05;
-    if (banded){
-      var lo = Math.max(-1, (v - amp)/10), hi = Math.min(1, (v + amp)/10);
-      band.hidden = false; band.style.left = (50 + lo*50) + '%'; band.style.width = ((hi - lo)*50) + '%';
-      mean.hidden = false; mean.style.background = col; mean.style.left = 'calc(' + (50 + f*50) + '% - 1px)';
-      fill.style.opacity = '0.62';
-    } else { band.hidden = true; mean.hidden = true; fill.style.opacity = '1'; }
-    $('dGaugeLabel').textContent = label || (banded ? (fonte === 'letture' ? 'intensity · average of the 5 readings' : 'intensity · swings') : 'intensity');
+    var max = SCALA*(v[2] || 1);
+    $('dGaugeLabel').textContent = label || 'positive and negative';
+    [['dgPos', 'dgPosN', v[0], VAL_POS], ['dgNeg', 'dgNegN', v[1], VAL_NEG]].forEach(function(r){
+      var f = $(r[0]), nn = $(r[1]);
+      f.style.background = r[3]; f.style.width = (100*clamp(r[2]/max, 0, 1)) + '%';
+      nn.textContent = String(r[2]); nn.style.color = r[3];
+    });
     var val = $('dgValue'); val.textContent = '';
-    var b = el('b', null, fmtSigned(v)); b.style.color = col; val.appendChild(b);
-    if (banded){ var sp = el('span', null, ' · from ' + fmtSigned(Math.max(-10, v - amp)) + ' to ' + fmtSigned(Math.min(10, v + amp))); sp.style.opacity = '0.6'; val.appendChild(sp); }
+    var b = el('b', null, VERD[verdetto(v)]); b.style.color = pnHex(v) || 'inherit'; val.appendChild(b);
+    if (tail) val.appendChild(document.createTextNode(' · ' + tail));
+    if (adesso && (adesso[0] !== v[0] || adesso[1] !== v[1]))
+      val.appendChild(el('div', null, 'now, with the re-readings: ' + fmtPN(adesso) + ' · ' + VERD[verdetto(adesso)]));
+  }
+  /* The third level of a memory, after the person's words and the
+     notebook: what a real author wrote about this kind of experience,
+     summed up by the AI (never a quotation from memory). */
+  function fillVoce(node){
+    var v = node.voce;
+    if (!v || !v.idea) return;
+    var box = $('dVoce'), c = el('div', 'voce');
+    box.textContent = ''; $('dVoceSec').hidden = false;
+    c.appendChild(el('b', null, String(v.autore || '') + (v.opera ? ' · ' + String(v.opera) : '')));
+    c.appendChild(el('p', null, String(v.idea)));
+    /* A link to the work only where someone looked it up in a library
+       catalogue (the example map): the morning job has no web and never
+       writes one. */
+    if (/^https:\/\/[^\s"'<>]+$/.test(String(v.link || ''))){
+      var a = el('a', null, 'open the work’s page'); a.href = String(v.link); a.target = '_blank'; a.rel = 'noopener noreferrer';
+      c.appendChild(a);
+    }
+    box.appendChild(c);
+    box.appendChild(el('p', 'tacc-avviso', 'An idea summed up by the AI, not a quotation: if it interests you, check the work.'));
+  }
+  /* The automatic measures, computed by psyche.py at every morning job and
+     never typed by anyone, each with its source and its main limit; the
+     kind of memory and the kinds of its details are picked by the AI. */
+  var TEND = { su: 'rising', giu: 'falling', stabile: 'steady' };
+  function fillMisure(node){
+    var m = (node.misure && typeof node.misure === 'object') ? node.misure : {};
+    var box = $('dMis'), righe = 0;
+    box.textContent = '';
+    function riga(nome, valore, dett, fonte){
+      var r = el('div', 'mis'), h = el('div', 'mis-h');
+      h.appendChild(el('span', 'mis-k', nome)); h.appendChild(el('b', null, valore));
+      r.appendChild(h);
+      if (dett) r.appendChild(el('div', 'mis-d', dett));
+      r.appendChild(el('div', 'mis-f', fonte));
+      box.appendChild(r); righe++;
+    }
+    var fr = [FORME[node.forma], RUOLI[node.ruolo]].filter(Boolean);
+    if (fr.length)
+      riga('kind of memory', fr.join(' · '), '',
+        'Autobiographical Memory Test (Williams and Broadbent, 1986): one moment shorter than a day, a moment that repeats, or a period longer than a day; the role, when there is one, comes from Pillemer (2001). The AI picks them reading your words.');
+    var c = m.centralita, e = m.elaborazione, v = m.vividezza;
+    if (c && typeof c.punti === 'number')
+      riga('centrality', plur(c.punti, 'point', 'points') + (c.posto ? ' · no. ' + c.posto + ' of ' + c.su : ''),
+        plur(c.ritorni || 0, 'day you talked about it', 'days you talked about it') + ' · ' + plur(c.legami || 0, 'link', 'links') + ' · ' + plur(c.identita || 0, 'identity phrase', 'identity phrases'),
+        'Centrality of Event Scale (Berntsen and Rubin, 2006), adapted: it counts the days it comes back, its links and phrases like «ever since». Limit: a recent memory comes back more often.');
+    if (e && typeof e.ultima === 'number')
+      riga('processing', num1(e.ultima) + ' per 100 words',
+        'words of cause and of insight' + (e.volte > 1 ? ' · the first time ' + num1(e.prima) + (TEND[e.tendenza] ? ', ' + TEND[e.tendenza] : '') : ''),
+        'Pennebaker, Mayne and Francis (1997): people who, going back to their memories, used more and more words like «because» and «I realised» were better off afterwards. Our own word lists, not the LIWC dictionary. Limit: on short texts it means little.');
+    if (v && typeof v.quota === 'number')
+      riga('vividness', v.quota + '% lived details',
+        (v.interni || 0) + ' of ' + ((v.interni || 0) + (v.esterni || 0)) + ' pieces of information; the others are comments or general facts',
+        'Autobiographical Interview (Levine and others, 2002); the AI counts the pieces. Limit: people who write little get fewer.');
+    var cp = m.copertura, sg = m.significato, ss = node.significati || [];
+    if (cp && typeof cp.tipi === 'number'){
+      var cc = cp.conti || {};
+      riga('kinds of detail', cp.tipi + ' of ' + (cp.su || 5),
+        Object.keys(CATEGORIE).filter(function(k){ return cc[k]; }).map(function(k){ return CATEGORIE[k] + ' ' + cc[k]; }).join(' · '),
+        'Autobiographical Interview (Levine and colleagues, 2002): lived details come in five kinds (event, place, time, senses, emotions and thoughts), and this counts how many the moons touch. The AI picks the kind of every moon. Limit: it says how varied the memory is, not how true it is.');
+    }
+    if (sg && (sg.lezioni || sg.comprensioni)){
+      riga('meaning', [sg.lezioni ? sg.lezioni + (sg.lezioni === 1 ? ' lesson' : ' lessons') : '',
+                     sg.comprensioni ? sg.comprensioni + (sg.comprensioni === 1 ? ' insight' : ' insights') : ''].filter(Boolean).join(' · '),
+        ss.length ? '“' + String(ss[ss.length - 1].text) + '”' : '',
+        'McLean and Thorne (2003): a lesson is a rule for how to act, an insight is something understood about yourself, others or life; Blagov and Singer (2004) call a memory with one of them “integrative”. The words are yours, the AI picks them. Limit: it counts only what you say in words.');
+    }
+    if (!righe) return;
+    $('dMisSec').hidden = false;
+    $('dMisLabel').textContent = 'automatic measures' + (String(node.id).indexOf('esempio-') === 0 ? ' · example' : '');
+    box.appendChild(el('p', 'tacc-avviso', 'Computed by the program at every morning job, from what the AI reads in your words: nobody types them.'));
   }
   function openNodeDrawer(node){
     resetDrawer();
@@ -2691,16 +2826,6 @@
         var box = el('div', 'lett'); box.style.setProperty('--lc', ANG_COL[key]);
         box.appendChild(el('div', 'lett-ang', raw ? (ANG_NAME[raw] || raw) + (ANG[raw] ? ' · ' + ANG[raw] : '') : 'reading'));
         box.appendChild(el('div', 'lett-txt', (L && L.testo) ? L.testo : ''));
-        if (L && typeof L.valenza === 'number' && !isNaN(L.valenza)){
-          var fv = clamp(L.valenza/10, -1, 1), pc = Math.abs(fv)*50;
-          var cv = Math.abs(L.valenza) < 0.05 ? VAL_ZERO : (L.valenza > 0 ? VAL_POS : VAL_NEG);
-          var wrap = el('div', 'lett-v'), tr = el('div', 'lett-track'), fl = el('span', 'lett-fill');
-          tr.appendChild(el('span', 'lett-tick'));
-          fl.style.background = cv; fl.style.left = (fv >= 0 ? 50 : 50 - pc) + '%'; fl.style.width = pc + '%';
-          tr.appendChild(fl);
-          var nu = el('span', 'lett-num', (L.valenza > 0 ? '+' : '') + L.valenza); nu.style.color = cv;
-          wrap.appendChild(tr); wrap.appendChild(nu); box.appendChild(wrap);
-        }
         interp.appendChild(box);
       });
     } else if (node.interpretation){
@@ -2713,10 +2838,6 @@
       node.percezioni.slice().sort(function(a, b){ return String(a && a.quando || '').localeCompare(String(b && b.quando || '')); })
         .forEach(function(P){
           var it = el('div', 'perc'), q = el('div', 'perc-q', (P && P.quando) ? P.quando : '');
-          if (P && typeof P.segnoAllora === 'number'){
-            var sg = el('span', null, (P.segnoAllora > 0 ? '+' : '') + P.segnoAllora);
-            sg.style.color = P.segnoAllora > 0 ? VAL_POS : VAL_NEG; sg.style.marginLeft = '7px'; q.appendChild(sg);
-          }
           it.appendChild(q); it.appendChild(el('div', 'perc-t', (P && P.testo) ? P.testo : ''));
           if (P && P.fonte) it.appendChild(el('div', 'perc-f', P.fonte + (P.attendibilita ? ' · ' + P.attendibilita : '')));
           $('dPerc').appendChild(it);
@@ -2731,7 +2852,6 @@
       $('dLinksLabel').textContent = 'links · ' + nb.length;
       nb.forEach(function(o){ $('dLinks').appendChild(chip(wordFor(o), colorForTheme(o.theme), function(){ selectNode(o); }, { type: 'planet', node: o })); });
     }
-    /* Its moons: the small details of this memory, each with its number. */
     var altreStelle = (node.temiAnche || []).filter(function(k){ return k !== node.theme && systems[k]; });
     if (altreStelle.length){
       $('dLinksSec').hidden = false;
@@ -2739,23 +2859,16 @@
       altreStelle.forEach(function(k){ var o = systems[k];
         $('dLinks').appendChild(chip('also touches · ' + capFirst(themeName(k)), o.hex, function(){ selectStar(o); }, { type: 'star', sys: o })); });
     }
+    /* Its moons: the small details of this memory, each with its two counts. */
     var nl = node.lune ? node.lune.length : 0;
     if (nl){
       $('dListSec').hidden = false; $('dListLabel').textContent = nl === 1 ? 'one moon' : 'moons · ' + nl;
       node.lune.forEach(function(l, j){ $('dList').appendChild(moonChip(node, j)); });
     }
-    var vl = valoreLune(node);
-    if (vl !== null){
-      var mv = node.lune.map(valLuna)
-        .filter(function(x){ return x !== null; });
-      var mamp = mv.length > 1 ? Math.sqrt(mv.reduce(function(a, x){ return a + (x - vl)*(x - vl); }, 0)/mv.length) : null;
-      setGauge(vl, mamp, null, 'average intensity of its moons');
-      var ad = node.lune.map(valLunaAdesso).filter(function(x){ return x !== null; });
-      if (ad.length){
-        var sp = el('span', null, ' · now ' + fmtSigned(ad.reduce(function(a, x){ return a + x; }, 0)/ad.length) + ' (' + ad.length + (ad.length === 1 ? ' moon rated again)' : ' moons rated again)'));
-        sp.style.opacity = '0.75'; $('dgValue').appendChild(sp);
-      }
-    } else setGauge(node.valenza, node.ampiezza, node.valenzaFonte);
+    var cp = contiPianeta(node);
+    setConti(cp, 'the two counts of its moons', cp ? sommaTxt(cp[2]) : '', contiPianeta(node, true));
+    fillVoce(node);
+    fillMisure(node);
     showDrawer();
   }
   /* The psychologist's notebook: notes on what the memory left, and the
@@ -2777,7 +2890,7 @@
   }
   function moonChip(node, j){
     var lm = lunaInfo(node, j);
-    return chip(lm.word + (lm.valore !== null ? ' ' + fmtSigned(lm.valore) : ''), valColor(lm.valore) || colorForTheme(node.theme),
+    return chip(lm.word + (lm.pn ? ' ' + fmtPN(lm.pn) : ''), pnHex(lm.pn) || colorForTheme(node.theme),
       function(){ selectMoon(node, j); }, { type: 'moon', node: node, idx: j });
   }
   function openMoonDrawer(node, j){
@@ -2786,7 +2899,7 @@
     drawer.style.setProperty('--c', hex);
     $('dTheme').textContent = 'moon';
     $('dWord').textContent = lm.word;
-    $('dMeta').textContent = 'a detail of ' + wordFor(node) + ' · ' + themeName(node.theme);
+    $('dMeta').textContent = 'a detail' + (lm.cat ? ' (' + CATEGORIE[lm.cat] + ')' : '') + ' of ' + wordFor(node) + ' · ' + themeName(node.theme);
     if (lm.text){ $('dText').textContent = lm.text; $('dText').hidden = false; }
     $('dLinksSec').hidden = false; $('dLinksLabel').textContent = 'its planet';
     $('dLinks').appendChild(chip(wordFor(node), hex, function(){ selectNode(node); }, { type: 'planet', node: node }));
@@ -2795,22 +2908,26 @@
       $('dListSec').hidden = false; $('dListLabel').textContent = altre.length === 1 ? 'its other moon' : 'its other moons · ' + altre.length;
       altre.forEach(function(k){ $('dList').appendChild(moonChip(node, k)); });
     }
-    setGauge(lm.valore, null, null);
-    if (lm.segno !== null || lm.adesso.length){
+    setConti(lm.pn, 'how you lived it then', 'from 0 (not at all) to 4 (extremely)');
+    /* How it felt then and at every «now» re-reading: negative feelings
+       usually fade faster (Fading Affect Bias, Walker e Skowronski). */
+    if (lm.adesso.length){
       $('dPercSec').hidden = false; $('dPerc').textContent = '';
-      var riga = function(quando, s, f, nota, provv){
-        var it = el('div', 'perc'), q = el('div', 'perc-q', quando), v = numSF(s, f);
-        var sg = el('span', null, (s > 0 ? 'positive' : s < 0 ? 'negative' : 'neutral') + (s ? ' · strength ' + clamp(Math.round(f || 3), 1, 5) + ' of 5' : ''));
-        sg.style.color = valColor(v) || 'inherit'; sg.style.marginLeft = '7px'; q.appendChild(sg);
+      var riga = function(quando, v, nota){
+        var it = el('div', 'perc'), q = el('div', 'perc-q', quando);
+        if (v){
+          var sg = el('span', null, 'positive ' + v[0] + ' · negative ' + v[1] + ' · ' + VERD[verdetto(v)]);
+          sg.style.color = pnHex(v) || 'inherit'; sg.style.marginLeft = '7px'; q.appendChild(sg);
+        }
         it.appendChild(q);
         if (nota) it.appendChild(el('div', 'perc-t', nota));
-        if (provv) it.appendChild(el('div', 'perc-f', 'rated by the AI, to be confirmed in chat'));
         $('dPerc').appendChild(it);
       };
-      if (lm.segno !== null) riga('then · ' + fmtDate(lm.createdAt), lm.segno, lm.forza, '', lm.provvisorio);
-      lm.adesso.forEach(function(a){ riga('now · ' + fmtDate(a.data), a.segno, a.forza, a.nota ? String(a.nota) : '', !!a.provvisorio); });
+      riga('then · ' + fmtDate(lm.createdAt), lm.pn, '');
+      lm.adesso.forEach(function(a){ riga('now · ' + fmtDate(a.data), pnLuna(a), a.nota ? String(a.nota) : ''); });
     }
-    $('dNote').hidden = false; $('dNote').textContent = 'A moon is a small detail of its memory. The planet takes the average of its moons’ numbers.';
+    $('dNote').hidden = false; $('dNote').textContent = 'A moon is a small detail of its memory. The AI gives its two counts reading your words, nobody types them; the planet adds them up.' +
+      (lm.cat ? ' The AI also picks the kind of detail, with the five categories of the Autobiographical Interview (Levine and colleagues, 2002).' : '');
     showDrawer();
   }
   function openThemeDrawer(s){
@@ -2831,18 +2948,37 @@
     }
     $('dListSec').hidden = false; $('dListLabel').textContent = 'its planets, from the closest to the star';
     s.list.forEach(function(n){ $('dList').appendChild(chip(wordFor(n), s.hex, function(){ selectNode(n); }, { type: 'planet', node: n })); });
-    setGauge(s.meanVal, s.ampVal, null, 'average intensity of the star');
+    setConti(s.conti, 'the two counts of the star', s.conti ? sommaTxt(s.conti[2]) : '');
     $('dNote').hidden = false;
     $('dNote').textContent = 'The orbits close to the star are the oldest memories, the outer ones the newest.';
     showDrawer();
   }
+  /* The core, «who you would like to be»: a hypothesis the AI writes in the
+     morning job from the most central memories (psyche.py picks them by
+     centrality), shown as a game with its warning. Until there are enough
+     memories it says so, with the same thresholds as psyche.py. */
+  var NUCLEO_MIN = 20, NUCLEO_TEMI = 3;
+  function statoNucleo(){
+    var temi = Object.keys(systems).filter(function(t){ return systems[t].count > 0; }).length;
+    return { ricordi: nodeList.length, temi: temi, pochi: nodeList.length < NUCLEO_MIN || temi < NUCLEO_TEMI };
+  }
   function openCoreDrawer(){
     resetDrawer();
     drawer.style.setProperty('--c', CORE_HEX);
-    $('dTheme').textContent = 'nucleo';
+    $('dTheme').textContent = 'core';
     $('dWord').textContent = core.label || 'CORE';
-    $('dMeta').textContent = core.updatedAt ? 'updated on ' + fmtDate(core.updatedAt) : '';
-    if (core.description){ $('dInterpSec').hidden = false; $('dInterpLabel').textContent = 'reading'; $('dInterp').appendChild(el('p', null, core.description)); }
+    $('dMeta').textContent = core.ipotesi && core.updatedAt ? 'updated on ' + fmtDate(core.updatedAt) : '';
+    var st = statoNucleo(), box = $('dInterp');
+    $('dInterpSec').hidden = false; $('dInterpLabel').textContent = 'who you would like to be · hypothesis';
+    if (core.ipotesi) box.appendChild(el('p', 'ipotesi', core.ipotesi));
+    else if (st.pochi) box.appendChild(el('p', null, 'More data needed. The core tries to guess only when there are at least ' + NUCLEO_MIN + ' memories on at least ' + NUCLEO_TEMI + ' stars: now ' + plur(st.ricordi, 'memory', 'memories') + ' on ' + plur(st.temi, 'star', 'stars') + '.'));
+    else box.appendChild(el('p', null, 'Not yet: the next morning job will try, if your most central memories point in a common direction.'));
+    box.appendChild(el('p', 'core-avviso', 'It is a game, not to be taken seriously. The hypothesis is written by an AI reading your most central memories (ideal self: Higgins, 1987; possible selves: Markus and Nurius, 1986): it is not a test or a diagnosis, and it can be very wrong.'));
+    var basi = core.ipotesi ? core.basi.map(function(id){ return nodesById[id]; }).filter(Boolean) : [];
+    if (basi.length){
+      $('dLinksSec').hidden = false; $('dLinksLabel').textContent = 'it rests on these memories';
+      basi.forEach(function(o){ $('dLinks').appendChild(chip(wordFor(o), colorForTheme(o.theme), function(){ selectNode(o); }, { type: 'planet', node: o })); });
+    }
     $('dNote').hidden = false;
     $('dNote').textContent = 'The core is the black hole at the centre of the galaxy: every star turns around it. It is listening, and new memories start from here, towards their star.';
     showDrawer();
@@ -2875,13 +3011,15 @@
     s.appendChild(el('span', 'num', v));
     return s;
   }
-  function intSpan(v){
+  /* The two counts in the menu: ▲ positive in green and ▼ negative in red,
+     added up and never averaged; hovering shows what prevails. */
+  function pnSpan(v){
     var s = el('span', 'aint');
-    if (typeof v !== 'number' || isNaN(v)) return s;
-    var shown = v.toFixed(1), zero = Math.abs(parseFloat(shown)) < 0.05, col = zero ? VAL_ZERO : (v > 0 ? NUM_POS : NUM_NEG);
-    var a = el('span', 'ar', zero ? '–' : (v > 0 ? '▲' : '▼')); a.style.color = col;
-    var n = el('span', null, zero ? '0.0' : (v > 0 ? '+' : '') + shown); n.style.color = col;
-    s.appendChild(a); s.appendChild(n);
+    if (!v) return s;
+    var a = el('span', 'ar', '▲'), p = el('span', 'an', String(v[0])), b = el('span', 'ar', '▼'), q = el('span', null, String(v[1]));
+    a.style.color = NUM_POS; p.style.color = NUM_POS; b.style.color = NUM_NEG; q.style.color = NUM_NEG;
+    s.appendChild(a); s.appendChild(p); s.appendChild(b); s.appendChild(q);
+    s.title = VERD[verdetto(v)];
     return s;
   }
   function nodeButton(n, withTheme){
@@ -2936,19 +3074,17 @@
     var last = nodeList.reduce(function(acc, n){ var t = Date.parse(n.createdAt); return (!isNaN(t) && t > acc) ? t : acc; }, 0);
     var lastEl = $('atlasLast'); lastEl.textContent = 'latest ';
     lastEl.appendChild(el('b', null, last ? new Date(last).toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric' }) : '—'));
-    /* The overall gauge averages the THEMES, not the nodes, as before: a small
-       heavy theme is not drowned out by a large mild one. */
-    var rated = syss.filter(function(s){ return typeof s.meanVal === 'number'; });
-    var tot = rated.length ? rated.reduce(function(a, s){ return a + s.meanVal; }, 0)/rated.length : null;
-    if (tot === null) $('atlasTotal').hidden = true;
+    /* The whole map: the two counts of all its stars added up, never
+       averaged into one number. */
+    var tot = contiMappa();
+    if (!tot) $('atlasTotal').hidden = true;
     else {
-      $('atlasTotal').hidden = false;
-      var shown = tot.toFixed(1), isZero = Math.abs(parseFloat(shown)) < 0.05, tcol = isZero ? VAL_ZERO : (tot > 0 ? NUM_POS : NUM_NEG);
-      $('ltArrow').textContent = isZero ? '–' : (tot > 0 ? '▲' : '▼'); $('ltArrow').style.color = tcol;
-      $('ltValue').textContent = isZero ? '0.0' : (tot > 0 ? '+' : '') + shown; $('ltValue').style.color = tcol;
+      $('atlasTotal').hidden = false; $('atlasTotal').title = VERD[verdetto(tot)];
+      $('ltArrow').textContent = '▲' + tot[0]; $('ltArrow').style.color = NUM_POS;
+      $('ltValue').textContent = '▼' + tot[1]; $('ltValue').style.color = NUM_NEG;
     }
     if (searchQ){ if (force) renderSearch(); return; }
-    var sig = syss.map(function(s){ return s.theme + ':' + s.count + ':' + (typeof s.meanVal === 'number' ? s.meanVal.toFixed(2) : '-'); }).join('|') + '#' + expandedTheme;
+    var sig = syss.map(function(s){ return s.theme + ':' + s.count + ':' + (s.conti ? s.conti.join(',') : '-'); }).join('|') + '#' + expandedTheme;
     if (!force && sig === atlasSig){ markActive(); return; }
     atlasSig = sig;
     var keepScroll = atlasList.scrollTop, fk = atlasFocusKey();
@@ -2969,7 +3105,7 @@
       row.setAttribute('data-theme', s.theme);
       row.style.setProperty('--c', s.hex); row.setAttribute('aria-expanded', open ? 'true' : 'false');
       row.appendChild(el('span', 'adot')); row.appendChild(el('span', 'aname', capFirst(themeName(s.theme))));
-      row.appendChild(cifre(s.count, 'acount')); row.appendChild(intSpan(s.meanVal));
+      row.appendChild(cifre(s.count, 'acount')); row.appendChild(pnSpan(s.conti));
       row.addEventListener('click', function(){
         userTouched = true;
         expandedTheme = open ? null : s.theme;
@@ -3702,7 +3838,7 @@
           if (!doc.exists || doc.id !== 'nucleo') return;
           var d = doc.data() || {};
           core.label = String(d.label || 'CORE').toUpperCase();
-          core.description = d.description || '';
+          core.ipotesi = String(d.ipotesi || '').trim(); core.basi = Array.isArray(d.basi) ? d.basi.map(String) : [];
           core.updatedAt = d.updatedAt || null;
           coreLabelB.textContent = core.label;
           if (selected && selected.type === 'core') refreshOpenDrawer();
