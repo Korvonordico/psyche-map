@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# Your data never goes in the repository (it lives in ~/Psyche or in the folder you chose)
+psyche-dati.js
+diario*.jsonl
+archivio/
+copie/
+stato.json
+registro.txt
+lavoro.lock
+SPENTO
+
+# Working notes, not part of the project
+LEGGIMI.txt
+README.txt
