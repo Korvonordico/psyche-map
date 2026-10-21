@@ -2,7 +2,12 @@
 
 Una mappa 3D dei tuoi ricordi che cresce da sola mentre parli con la tua IA.
 
-![Psyche Map](docs/psyche-mappa.png)
+[![Sei sere di chat in 23 secondi: cresce la mappa di una persona inventata (video in inglese)](docs/psyche-map-preview.webp)](docs/psyche-map-video.mp4)
+
+**Il video** ([docs/psyche-map-video.mp4](docs/psyche-map-video.mp4): in inglese, 2 min 16 s, con l'audio, circa
+40 MB; GitHub lo scarica e lo guardi sul tuo PC): una persona inventata scrive alla sua IA per sei sere e la sua
+mappa cresce da zero a 26 stelle, 26 pianeti e 130 lune. Alla fine: il nucleo, un ricordo visto da vicino e le sue
+misure automatiche.
 
 *English: [README.md](README.md)*
 
@@ -10,6 +15,9 @@ Psyche Map è un «secondo cervello» fatto per la vita interiore. Ogni ricordo 
 mappa: i temi della tua vita sono stelle, i ricordi sono pianeti che girano attorno, e i dettagli di ogni ricordo
 sono lune. La tua IA legge la mappa prima di risponderti, così quando parli di qualcosa di personale sa già di
 cosa parli.
+
+Più parli con la tua IA, più ti conosce: in questo senso è una specie di supporto psicologico. Ma più che altro è
+un gioco. Io non sono un esperto: l'ho costruito per passione dell'argomento.
 
 Non è uno strumento per fare diagnosi e non sostituisce uno psicologo. Se qualcosa continua a farti male, parlane
 con un professionista.
@@ -108,6 +116,8 @@ Poi apri `~/Psyche/psyche-it.html` nel browser. Si aggiorna da sola ogni 15 seco
 Per aggiornare: `git pull`, poi di nuovo il comando di installazione. La tua mappa e il tuo diario restano come sono.
 
 ## Come si usa la pagina
+
+![La pagina col suo esempio: l'elenco a sinistra, i pulsanti in alto a destra, il puntatore su un pianeta](docs/psyche-mappa.png)
 
 - Trascina per girare la vista, usa la rotellina per avvicinarti. Clicca una stella o un pianeta per aprire il suo
   pannello; passa sopra una luna per leggerla e cliccala per aprirla. Esc chiude.

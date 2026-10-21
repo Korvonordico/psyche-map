@@ -2,13 +2,21 @@
 
 A 3D map of your memories that grows by itself while you talk with your AI.
 
-![Psyche Map](docs/psyche-map.png)
+[![Six evenings of chat in 23 seconds: the map of an invented person grows](docs/psyche-map-preview.webp)](docs/psyche-map-video.mp4)
+
+**The video** ([docs/psyche-map-video.mp4](docs/psyche-map-video.mp4): 2 min 16 s, with sound, about 40 MB; GitHub
+downloads it and you watch it on your PC): an invented person writes to her AI for six evenings and her map grows
+from nothing to 26 stars, 26 planets and 130 moons. At the end: the core, one memory up close and its automatic
+measures.
 
 *Italiano: [LEGGIMI.md](LEGGIMI.md)*
 
 Psyche Map is a second brain built for the inner life. Every memory you mention to your AI ends up on the map:
 themes of your life are stars, memories are planets around them, and the details of each memory are moons. Your AI
 reads the map before it answers, so when you talk about something personal it already knows what you mean.
+
+The more you talk with your AI, the better it knows you: in that sense it is a kind of psychological support. But
+above all it is a game. I am not an expert: I built it out of passion for the subject.
 
 It is not a diagnostic tool. It does not replace a psychologist. If something keeps hurting, talk to a professional.
 
@@ -106,6 +114,8 @@ Then open `~/Psyche/psyche-en.html` in your browser. It updates by itself every 
 To update: `git pull`, then run the install command again. Your map and your diary stay as they are.
 
 ## Using the page
+
+![The page with its built-in example: the list on the left, the buttons at the top right, the pointer on a planet](docs/psyche-map.png)
 
 - Drag to turn the view, scroll to zoom. Click a star or a planet to open its panel; hover a moon to read it and
   click it to open it. Esc closes.
